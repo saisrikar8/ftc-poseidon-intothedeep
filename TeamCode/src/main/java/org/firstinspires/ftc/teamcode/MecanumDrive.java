@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Constants.SLIDE_MOTOR_POWER;
+import static org.firstinspires.ftc.teamcode.Constants.SLIDE_ROTATIONS_PER_INCH;
+import static org.firstinspires.ftc.teamcode.Constants.TICKS_PER_REV;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.canvas.Canvas;
@@ -37,6 +41,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -489,5 +494,43 @@ public final class MecanumDrive {
                 defaultTurnConstraints,
                 defaultVelConstraint, defaultAccelConstraint
         );
+    }
+}
+
+class Slide {
+    DcMotor leftMotor, rightMotor;
+    Servo leftServo, rightServo;
+    double slidePosition;
+
+    public Slide(DcMotor motor1, DcMotor motor2, Servo servo1, Servo servo2) {
+        leftMotor = motor1;
+        rightMotor = motor2;
+        leftServo = servo1;
+        rightServo = servo2;
+        slidePosition = 0;
+    }
+
+    public Action slideTo(double height) {
+        slidePosition += height;
+        SequentialAction slideAction = new SequentialAction();
+        leftMotor.setTargetPosition((int) (SLIDE_ROTATIONS_PER_INCH * height * TICKS_PER_REV));
+        rightMotor.setTargetPosition((int) (SLIDE_ROTATIONS_PER_INCH * height * TICKS_PER_REV));
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return slideAction;
+    }
+    public class SlideTo implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if (!initialized) {
+                // initialize here
+                leftMotor.setPower(SLIDE_MOTOR_POWER);
+                rightMotor.setPower(SLIDE_MOTOR_POWER);
+                initialized = true;
+            }
+            
+        }
     }
 }
