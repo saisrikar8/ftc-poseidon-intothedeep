@@ -530,7 +530,8 @@ class Slide {
                 rightMotor.setPower(SLIDE_MOTOR_POWER);
                 initialized = true;
             }
-            
+            // TODO: work on actions later
+            return false;
         }
     }
 }
