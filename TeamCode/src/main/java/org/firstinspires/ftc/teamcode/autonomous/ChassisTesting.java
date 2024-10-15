@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.MecanumDrive.TurnAction;
 
-@Autonomous(name = "Chassis Testing")
+@Autonomous(name = "Auto Chassis Testing")
 public class ChassisTesting extends LinearOpMode {
     MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
