@@ -18,9 +18,10 @@ import org.firstinspires.ftc.teamcode.MecanumDrive.TurnAction;
 
 @Autonomous(name = "Auto Chassis Testing")
 public class ChassisTesting extends LinearOpMode {
-    MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+    MecanumDrive drive;
 
     public void runOpMode() {
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         waitForStart();
         TrajectoryActionBuilder traj1 = null;
         TrajectoryActionBuilder traj2 = null;
@@ -29,7 +30,6 @@ public class ChassisTesting extends LinearOpMode {
         TrajectoryActionBuilder traj5 = null;
         TrajectoryActionBuilder traj6 = null;
         while (!isStopRequested() && !opModeIsActive()) {
-            // init code here
             traj1 = drive.actionBuilder(new Pose2d(0, 0, 0))
                     .strafeTo(new Vector2d(10, 0));
 
@@ -48,20 +48,15 @@ public class ChassisTesting extends LinearOpMode {
             traj6 = drive.actionBuilder(new Pose2d(-10, -10, 0))
                     .splineTo(new Vector2d(0, 0), 0);
 
+            if (isStopRequested()) return;
+
+            Actions.runBlocking(
+                    traj1.build()
+            );
+
+
         }
 
-        if (isStopRequested()) return;
-
-        Actions.runBlocking(
-                new SequentialAction(
-                        traj1.build(),
-                        traj2.build(),
-                        traj3.build(),
-                        traj4.build(),
-                        traj5.build(),
-                        traj6.build()
-                )
-        );
 
     }
 }
