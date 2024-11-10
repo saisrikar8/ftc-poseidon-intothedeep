@@ -35,15 +35,15 @@ public class ChassisTesting extends LinearOpMode {
 
     }
     public void moveRobot(double leftStickX, double leftStickY, double rightStickX) {
-        double speed = -leftStickY;   // Forward/Backward movement
+        double speed = leftStickY;   // Forward/Backward movement
         double strafe = -leftStickX;  // Left/Right movement (strafe)
         double turn = -rightStickX;   // Rotation
 
         // Calculate each motor's power
         double frontLeftPower = speed + turn + strafe;
         double frontRightPower = speed - turn - strafe;
-        double backLeftPower = -speed + turn - strafe;
-        double backRightPower = -speed - turn + strafe;
+        double backLeftPower = speed + turn - strafe;
+        double backRightPower = speed - turn + strafe;
 
         // Set motor powers
         frontLeft.setPower(frontLeftPower);
