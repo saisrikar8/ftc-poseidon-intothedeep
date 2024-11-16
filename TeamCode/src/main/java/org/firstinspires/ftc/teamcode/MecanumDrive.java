@@ -65,11 +65,11 @@ public final class MecanumDrive {
         // drive model parameters
         public double inPerTick = 0.031162534;
         public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 385;
+        public double trackWidthTicks = 923.1800885912978;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.0064323710111469;
-        public double kV = 0.004103837282680679;
+        public double kS = 1.8131237694217415;
+        public double kV = 0.004159057744127528;
         public double kA = 0.00078;
 
         // path profile parameters (in inches)
@@ -139,8 +139,8 @@ public final class MecanumDrive {
             imu = lazyImu.get();
 
             // TODO: reverse encoders if needed
-               rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-               rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+               leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+               leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         }
 
         @Override
@@ -229,8 +229,8 @@ public final class MecanumDrive {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // TODO: reverse motor directions if needed
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
