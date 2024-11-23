@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +12,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
     DcMotor frontRight;
     DcMotor backLeft;
     DcMotor backRight;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    TelemetryPacket telemetryPacket = new TelemetryPacket();
     public void runOpMode(){
 
         frontLeft = hardwareMap.get(DcMotor.class, "front-left");
@@ -29,9 +33,15 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
 
         while (opModeIsActive() && !isStopRequested()){
+            // right stick x is horizontal direction!!
             moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-        }
+            telemetryPacket.put("right stick x", gamepad1.right_stick_x);
+            telemetryPacket.put("right stick y", gamepad1.right_stick_y);
 
+            telemetryPacket.put("left stick x", gamepad1.left_stick_x);
+            telemetryPacket.put("left stick y", gamepad1.left_stick_y);
+            dashboard.sendTelemetryPacket(telemetryPacket);
+        }
     }
     public void moveRobot(double leftStickX, double leftStickY, double rightStickX) {
         double speed = leftStickY;   // Forward/Backward movement
