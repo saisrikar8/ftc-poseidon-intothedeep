@@ -18,15 +18,15 @@ public class ChassisTesting extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
         TrajectoryActionBuilder traj1 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeTo(new Vector2d(10, 0));
+                .strafeTo(new Vector2d(5, 0));
         TrajectoryActionBuilder traj2 = drive.actionBuilder(new Pose2d(10, 0, 0))
-                .strafeTo(new Vector2d(-10, 0));
+                .strafeTo(new Vector2d(-5, 0));
         TrajectoryActionBuilder traj3 = drive.actionBuilder(new Pose2d(-10, 0, 0))
                 .strafeTo(new Vector2d(0, 0));
         TrajectoryActionBuilder traj4 = drive.actionBuilder(new Pose2d(0, 0, 0))
-                .splineTo(new Vector2d(10, 10), 0);
+                .splineTo(new Vector2d(5, 5), 0);
         TrajectoryActionBuilder traj5 = drive.actionBuilder(new Pose2d(10, 10, 0))
-                .splineTo(new Vector2d(-10, -10), 0);
+                .splineTo(new Vector2d(-5, -5), 0);
         TrajectoryActionBuilder traj6 = drive.actionBuilder(new Pose2d(-10, -10, 0))
                 .splineTo(new Vector2d(0, 0), 0);
 
