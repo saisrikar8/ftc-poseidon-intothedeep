@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -30,17 +29,16 @@ public class SlideOpMode extends LinearOpMode {
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Slide slide1 = new Slide(motor1);
         Slide slide2 = new Slide(motor2);
-        telemetryPacket.put("status", "initialized");
         dashboard.sendTelemetryPacket(telemetryPacket);
         waitForStart();
-        telemetryPacket.put("status", "started");
         dashboard.sendTelemetryPacket(telemetryPacket);
 
         // Actions.runBlocking(slide.testMoveABit());
         while (opModeIsActive() && !isStopRequested()) {
-            telemetryPacket.put("left stick y", gamepad1.left_stick_y);
-            telemetryPacket.put("left stick x", gamepad1.left_stick_x);
             telemetryPacket.put("motor1 position", motor1.getCurrentPosition());
+            telemetryPacket.put("motor2 position", motor2.getCurrentPosition());
+            telemetryPacket.put("motor1 power", motor1.getPower());
+            telemetryPacket.put("motor2 power", motor2.getPower());
             dashboard.sendTelemetryPacket(telemetryPacket);
 
             Action selectedAction1 = null;
@@ -65,8 +63,18 @@ public class SlideOpMode extends LinearOpMode {
                         )
                 );
             }
-            motor1.setPower((motor1.getCurrentPosition() < 0)?((motor1.getCurrentPosition() > MAX_SLIDE_EXTENSION+slide1.startingPosition) ? (gamepad1.left_stick_y):(Math.max(gamepad1.left_stick_y, 0))):(Math.min(0, gamepad1.left_stick_y)));
-            motor2.setPower((motor2.getCurrentPosition() < 0)?((motor2.getCurrentPosition() > MAX_SLIDE_EXTENSION+slide2.startingPosition) ? (gamepad1.left_stick_y):(Math.max(gamepad1.left_stick_y, 0))):(Math.min(0, gamepad1.left_stick_y)));
+            else {
+                motor1.setPower((motor1.getCurrentPosition() < slide1.startingPosition) ? ((motor1.getCurrentPosition() > MAX_SLIDE_EXTENSION + slide1.startingPosition) ? (gamepad1.left_stick_y) : (Math.max(gamepad1.left_stick_y, 0))) : (Math.min(0, gamepad1.left_stick_y)));
+                motor2.setPower((motor2.getCurrentPosition() < slide2.startingPosition) ? ((motor2.getCurrentPosition() > MAX_SLIDE_EXTENSION + slide2.startingPosition) ? (gamepad1.left_stick_y) : (Math.max(gamepad1.left_stick_y, 0))) : (Math.min(0, gamepad1.left_stick_y)));
+                if (motor1.getPower() == 0 && motor2.getPower() == 0) {
+                    Actions.runBlocking(
+                            new ParallelAction(
+                                    slide1.stayAtRest(gamepad1),
+                                    slide2.stayAtRest(gamepad1)
+                            )
+                    );
+                }
+            }
         }
     }
 }

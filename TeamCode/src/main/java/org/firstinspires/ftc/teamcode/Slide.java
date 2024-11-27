@@ -7,21 +7,24 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Slide {
 
     private DcMotor motor;
 
-    // initialize hardware map
+    private Gamepad gamepad;
+
+    //
     private double targetPosition = 0;
     public final double startingPosition;
     public Slide(HardwareMap map, String motorName) {
         motor = map.get(DcMotor.class, motorName);
         startingPosition = motor.getCurrentPosition();
     }
-    public Slide(DcMotor slideMotor){motor = slideMotor; startingPosition = slideMotor.getCurrentPosition();}
-    // class which has the run logic
+    public Slide(DcMotor slideMotor){motor = slideMotor; startingPosition = motor.getCurrentPosition();}
+
     public class TestMoveABit implements Action {
         private boolean initialized = false;
 
@@ -61,6 +64,23 @@ public class Slide {
             return false;
         }
     }
+
+    public class StayAtRest implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket){
+            if (motor.getPower() == 0){
+                motor.setTargetPosition(motor.getCurrentPosition());
+                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            if (gamepad.atRest() && !(gamepad.a || gamepad.b || gamepad.x || gamepad.y)){
+                motor.setPower(0.02);
+                return true;
+            }
+            motor.setPower(0);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            return false;
+        }
+    }
     // method is called for class
     public Action testMoveABit() {
         return new TestMoveABit();
@@ -77,6 +97,10 @@ public class Slide {
     public Action moveToLowestPos() {
         this.targetPosition = startingPosition;
         return new MoveToPosition();
+    }
+    public Action stayAtRest(Gamepad gamepad1){
+        gamepad = gamepad1;
+        return new StayAtRest();
     }
 }
 
