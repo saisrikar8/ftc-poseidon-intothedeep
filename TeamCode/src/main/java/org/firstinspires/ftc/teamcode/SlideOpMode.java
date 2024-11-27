@@ -26,7 +26,8 @@ public class SlideOpMode extends LinearOpMode {
         DcMotor motor1 = hardwareMap.get(DcMotor.class, "motor");
         DcMotor motor2 = hardwareMap.get(DcMotor.class, "motor2");
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        double startPosition1 = motor1.getCurrentPosition();
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Slide slide1 = new Slide(motor1);
         Slide slide2 = new Slide(motor2);
         telemetryPacket.put("status", "initialized");
@@ -34,8 +35,6 @@ public class SlideOpMode extends LinearOpMode {
         waitForStart();
         telemetryPacket.put("status", "started");
         dashboard.sendTelemetryPacket(telemetryPacket);
-        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Actions.runBlocking(slide.testMoveABit());
         while (opModeIsActive() && !isStopRequested()) {
