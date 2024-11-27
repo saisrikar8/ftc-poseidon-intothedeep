@@ -4,10 +4,16 @@ import static org.firstinspires.ftc.teamcode.Constants.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import java.util.ArrayList;
 
 @Autonomous(name = "something")
 public class SlideOpMode extends LinearOpMode {
@@ -17,62 +23,51 @@ public class SlideOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotor motor = hardwareMap.get(DcMotor.class, "motor");
-        double startPosition = motor.getCurrentPosition();
-        Slide slide = new Slide(hardwareMap, "motor");
+        DcMotor motor1 = hardwareMap.get(DcMotor.class, "motor");
+        DcMotor motor2 = hardwareMap.get(DcMotor.class, "motor2");
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        double startPosition1 = motor1.getCurrentPosition();
+        Slide slide1 = new Slide(motor1);
+        Slide slide2 = new Slide(motor2);
         telemetryPacket.put("status", "initialized");
         dashboard.sendTelemetryPacket(telemetryPacket);
         waitForStart();
         telemetryPacket.put("status", "started");
         dashboard.sendTelemetryPacket(telemetryPacket);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Actions.runBlocking(slide.testMoveABit());
         while (opModeIsActive() && !isStopRequested()) {
             telemetryPacket.put("left stick y", gamepad1.left_stick_y);
             telemetryPacket.put("left stick x", gamepad1.left_stick_x);
-            telemetryPacket.put("motor position", motor.getCurrentPosition());
+            telemetryPacket.put("motor1 position", motor1.getCurrentPosition());
             dashboard.sendTelemetryPacket(telemetryPacket);
+
+            Action selectedAction1 = null;
+            Action selectedAction2 = null;
             if (gamepad1.a) {
-                motor.setTargetPosition(MAX_SLIDE_EXTENSION+(int)startPosition);
-                motor.setPower(0.6);
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                while(motor.isBusy() && gamepad1.atRest()){
-                    telemetryPacket.put("status", "going to position");
-                    dashboard.sendTelemetryPacket(telemetryPacket);
-                }
-                motor.setPower(0);
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                telemetryPacket.put("status", "reached position");
+                selectedAction1 = slide1.moveToHighestPos();
+                selectedAction2 = slide2.moveToHighestPos();
             }
-            if (gamepad1.b) {
-                motor.setTargetPosition((int)startPosition);
-                motor.setPower(0.6);
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                while(motor.isBusy() && gamepad1.atRest()){
-                    telemetryPacket.put("status", "going to position");
-                    dashboard.sendTelemetryPacket(telemetryPacket);
-                    if (motor.getCurrentPosition()+50 >= startPosition){
-                        motor.setPower(0.33);
-                    }
-                }
-                motor.setPower(0);
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                telemetryPacket.put("status", "reached position");
+            else if (gamepad1.b) {
+                selectedAction1 = slide1.moveToLowestPos();
+                selectedAction2 = slide2.moveToLowestPos();
             }
-            if (gamepad1.x) {
-                motor.setTargetPosition((int)((-10 * SLIDE_TICKS_PER_INCH)+startPosition));
-                motor.setPower(0.6);
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                while(motor.isBusy() && gamepad1.atRest()){
-                    telemetryPacket.put("status", "going to position");
-                    dashboard.sendTelemetryPacket(telemetryPacket);
-                }
-                motor.setPower(0);
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                telemetryPacket.put("status", "reached position");
+            else if (gamepad1.x) {
+                selectedAction1 = slide1.moveToPosition(10);
+                selectedAction2 = slide2.moveToPosition(10);
             }
-            motor.setPower((motor.getCurrentPosition() < 0)?((motor.getCurrentPosition() > MAX_SLIDE_EXTENSION+startPosition) ? (gamepad1.left_stick_y):(Math.max(gamepad1.left_stick_y, 0))):(Math.min(0, gamepad1.left_stick_y)));
+            if (selectedAction1 != null){
+                Actions.runBlocking(
+                        new ParallelAction(
+                                selectedAction1,
+                                selectedAction2
+                        )
+                );
+            }
+            motor1.setPower((motor1.getCurrentPosition() < 0)?((motor1.getCurrentPosition() > MAX_SLIDE_EXTENSION+slide1.startingPosition) ? (gamepad1.left_stick_y):(Math.max(gamepad1.left_stick_y, 0))):(Math.min(0, gamepad1.left_stick_y)));
+            motor2.setPower((motor2.getCurrentPosition() < 0)?((motor2.getCurrentPosition() > MAX_SLIDE_EXTENSION+slide2.startingPosition) ? (gamepad1.left_stick_y):(Math.max(gamepad1.left_stick_y, 0))):(Math.min(0, gamepad1.left_stick_y)));
         }
     }
 }

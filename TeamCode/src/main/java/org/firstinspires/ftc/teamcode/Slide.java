@@ -15,9 +15,12 @@ public class Slide {
 
     // initialize hardware map
     private double targetPosition = 0;
+    public final double startingPosition;
     public Slide(HardwareMap map, String motorName) {
         motor = map.get(DcMotor.class, motorName);
+        startingPosition = motor.getCurrentPosition();
     }
+    public Slide(DcMotor slideMotor){motor = slideMotor; startingPosition = slideMotor.getCurrentPosition();}
     // class which has the run logic
     public class TestMoveABit implements Action {
         private boolean initialized = false;
@@ -46,7 +49,11 @@ public class Slide {
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             if (motor.isBusy()){
-                motor.setPower(1);
+                if (motor.getCurrentPosition() + 50 >= targetPosition){
+                    motor.setPower(0.33);
+                    return true;
+                }
+                motor.setPower(0.66);
                 return true;
             }
             motor.setPower(0);
@@ -60,7 +67,15 @@ public class Slide {
     }
 
     public Action moveToPosition(double targetPosition){
-        this.targetPosition = targetPosition*Constants.SLIDE_TICKS_PER_INCH;
+        this.targetPosition = startingPosition - targetPosition*Constants.SLIDE_TICKS_PER_INCH;
+        return new MoveToPosition();
+    }
+    public Action moveToHighestPos(){
+        this.targetPosition = startingPosition + Constants.MAX_SLIDE_EXTENSION;
+        return new MoveToPosition();
+    }
+    public Action moveToLowestPos() {
+        this.targetPosition = startingPosition;
         return new MoveToPosition();
     }
 }
