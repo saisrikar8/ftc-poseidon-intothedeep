@@ -15,6 +15,7 @@ public class Slide {
     private DcMotor motor;
 
     private Gamepad gamepad;
+    private double targetPower;
 
     //
     private double targetPosition = 0;
@@ -81,6 +82,15 @@ public class Slide {
             return false;
         }
     }
+
+    public class SetMotorPower implements Action{
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket){
+            motor.setPower(targetPower);
+            return false;
+        }
+    }
+
     // method is called for class
     public Action testMoveABit() {
         return new TestMoveABit();
@@ -101,6 +111,10 @@ public class Slide {
     public Action stayAtRest(Gamepad gamepad1){
         gamepad = gamepad1;
         return new StayAtRest();
+    }
+    public Action setMotorPower(double power){
+        targetPower = power;
+        return new SetMotorPower();
     }
 }
 
