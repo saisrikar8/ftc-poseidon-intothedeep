@@ -100,12 +100,8 @@ public class Slide {
         this.targetPosition = startingPosition - targetPosition*Constants.SLIDE_TICKS_PER_INCH;
         return new MoveToPosition();
     }
-    public Action moveToFourStageHighestPos(){
+    public Action moveToHighestPos(){
         this.targetPosition = startingPosition + Constants.MAX_SLIDE_EXTENSION;
-        return new MoveToPosition();
-    }
-    public Action moveToTwoStageHighestPos(){
-        this.targetPosition = startingPosition + Constants.MAX_SLIDE_EXTENSION/2;
         return new MoveToPosition();
     }
     public Action moveToLowestPos() {
