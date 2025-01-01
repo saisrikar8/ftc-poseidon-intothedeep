@@ -5,20 +5,23 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class HorizontalArm {
     Slide left, right;
-    public HorizontalArm(Slide l, Slide r){
+    public HorizontalArm(Slide l, Slide r, Servo lRotator, Servo rRotator){
         left = l;
         right = r;
     }
     public HorizontalArm(DcMotor l, DcMotor r){
         left = new Slide(l);
         right = new Slide(r);
+
     }
-    public HorizontalArm(HardwareMap hardwareMap, String lId, String rId){
+    public HorizontalArm(HardwareMap hardwareMap, String lId, String rId, String lRotatorId, String rRotatorId){
         left = new Slide(hardwareMap, lId);
         right = new Slide(hardwareMap, rId);
+
     }
     public Action moveToPosition(int targetPos){
         return new ParallelAction(

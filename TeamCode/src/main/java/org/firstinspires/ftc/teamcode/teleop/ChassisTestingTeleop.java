@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArm;
@@ -28,7 +29,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
     public void runOpMode(){
-
+        //Fetching hardware entities from the robot config
         frontLeft = hardwareMap.get(DcMotor.class, "front-left");
         frontRight = hardwareMap.get(DcMotor.class, "front-right");
         backLeft = hardwareMap.get(DcMotor.class, "rear-left");
@@ -40,16 +41,14 @@ public class ChassisTestingTeleop extends LinearOpMode {
         horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
         horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
 
+
+        //Setting the entities' characteristics
         vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
-        horizontal1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         vertical1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         vertical2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         horizontal1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         horizontal2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        elevator = new Elevator(vertical1, vertical2);
-        arm = new HorizontalArm(horizontal1, horizontal2);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -59,13 +58,19 @@ public class ChassisTestingTeleop extends LinearOpMode {
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+
+        //sorting entities into subsystems
+        elevator = new Elevator(vertical1, vertical2);
+        arm = new HorizontalArm(horizontal1, horizontal2);
+
         waitForStart();
 
 
         while (opModeIsActive() && !isStopRequested()){
-            // right stick x is horizontal direction!!
+            //Moving robot based on gamepad 1's inputs
             moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
+            //Running
             Actions.runBlocking(
                     new ParallelAction(
                         elevator.setMotorPowers(gamepad2.left_stick_y),
@@ -86,8 +91,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
         double turn = -rightStickX;   // Rotation
 
         // Apply correction factors for uneven weight distribution
-        double strafeCorrectionFrontLeft = 0.9;  // Reduce power for front-left motor
-        double strafeCorrectionFrontRight = 0.9; // Reduce power for front-right motor
+        double strafeCorrectionFrontLeft = 0.95;  // Reduce power for front-left motor
+        double strafeCorrectionFrontRight = 0.95; // Reduce power for front-right motor
 
         // Calculate each motor's power
         double frontLeftPower = (speed + turn + strafe) * strafeCorrectionFrontLeft;
