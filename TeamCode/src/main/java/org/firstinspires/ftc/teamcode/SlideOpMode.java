@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.teleop.ChassisTestingTeleop.*;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "")
+@Autonomous(name = "slide op mode")
 public class SlideOpMode extends LinearOpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
@@ -26,18 +26,18 @@ public class SlideOpMode extends LinearOpMode {
     DcMotor motor1;
     DcMotor motor2;
 
-
+/*
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
-    DcMotor backRight;
+    DcMotor backRight;*/
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
 
         //initializing slides
-        motor1 = hardwareMap.get(DcMotor.class, "vertical1");
-        motor2 = hardwareMap.get(DcMotor.class, "vertical2");
+        motor1 = hardwareMap.get(DcMotor.class, "motor");
+        motor2 = hardwareMap.get(DcMotor.class, "motor2");
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -45,7 +45,7 @@ public class SlideOpMode extends LinearOpMode {
         Slide slide2 = new Slide(motor2);
 
         //initializing drivetrain
-        frontLeft = hardwareMap.get(DcMotor.class, "front-left");
+        /*frontLeft = hardwareMap.get(DcMotor.class, "front-left");
         frontRight = hardwareMap.get(DcMotor.class, "front-right");
         backLeft = hardwareMap.get(DcMotor.class, "rear-left");
         backRight = hardwareMap.get(DcMotor.class, "rear-right");
@@ -56,7 +56,7 @@ public class SlideOpMode extends LinearOpMode {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);*/
 
 
         //waiting for start
@@ -78,8 +78,8 @@ public class SlideOpMode extends LinearOpMode {
 
             //selecting the Action
             if (gamepad1.a) {
-                selectedAction1 = slide1.moveToHighestPos();
-                selectedAction2 = slide2.moveToHighestPos();
+                selectedAction1 = slide1.moveToFourStageHighestPos();
+                selectedAction2 = slide2.moveToFourStageHighestPos();
             }
             else if (gamepad1.b) {
                 selectedAction1 = slide1.moveToLowestPos();
@@ -99,7 +99,7 @@ public class SlideOpMode extends LinearOpMode {
             }
 
             //drivetrain update
-            moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            //moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
             //running the Action of each slide in parallel
             Actions.runBlocking(
@@ -112,7 +112,7 @@ public class SlideOpMode extends LinearOpMode {
     }
 
     // drivetrain calculations and setting motor powers
-    public void moveRobot(double leftStickX, double leftStickY, double rightStickX) {
+    /*public void moveRobot(double leftStickX, double leftStickY, double rightStickX) {
         double speed = leftStickY;   // Forward/Backward movement
         double strafe = -leftStickX;  // Left/Right movement (strafe)
         double turn = -rightStickX;   // Rotation
@@ -128,6 +128,6 @@ public class SlideOpMode extends LinearOpMode {
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
-    }
+    }*/
 }
 
