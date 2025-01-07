@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArm;
 
@@ -26,8 +27,16 @@ public class ChassisTestingTeleop extends LinearOpMode {
     Elevator elevator;
     HorizontalArm arm;
 
+    Claw claw;
+
+    Servo armRotator;
+
+    Servo horizontalClaw, horizontalClawRotator;
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
+
+    private double armDegrees = 120;
     public void runOpMode(){
         //Fetching hardware entities from the robot config
         frontLeft = hardwareMap.get(DcMotor.class, "front-left");
@@ -40,6 +49,10 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
         horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
         horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
+        armRotator = hardwareMap.get(Servo.class, "arm-rotator");
+
+        horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
+        horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
 
 
         //Setting the entities' characteristics
@@ -61,7 +74,9 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
         //sorting entities into subsystems
         elevator = new Elevator(vertical1, vertical2);
-        arm = new HorizontalArm(horizontal1, horizontal2);
+        arm = new HorizontalArm(horizontal1, horizontal2, armRotator);
+        claw = new Claw(horizontalClaw, null, horizontalClawRotator);
+
 
         waitForStart();
 
@@ -70,19 +85,30 @@ public class ChassisTestingTeleop extends LinearOpMode {
             //Moving robot based on gamepad 1's inputs
             moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
+            if (gamepad2.x){
+                armDegrees = 210;
+            }
+            if (gamepad2.b){
+                armDegrees = 95;
+            }
+            if (gamepad2.a){
+               horizontalClaw.setPosition(0.53);
+            }
+            if (gamepad2.y){
+                horizontalClaw.setPosition(0.7);
+            }
+
             //Running
             Actions.runBlocking(
                     new ParallelAction(
-                        elevator.setMotorPowers(gamepad2.left_stick_y),
-                        arm.setMotorPowers(gamepad2.right_stick_x)
+                            elevator.setMotorPowers(gamepad2.left_stick_y),
+                            arm.setMotorPowers(gamepad2.right_stick_x),
+                            arm.setOrientation(armDegrees)
                     )
             );
-            telemetryPacket.put("right stick x", gamepad1.right_stick_x);
-            telemetryPacket.put("right stick y", gamepad1.right_stick_y);
 
-            telemetryPacket.put("left stick x", gamepad1.left_stick_x);
-            telemetryPacket.put("left stick y", gamepad1.left_stick_y);
-            dashboard.sendTelemetryPacket(telemetryPacket);
+            telemetry.addData("left rotator", arm.rotator.getPosition());
+            telemetry.update();
         }
     }
     public void moveRobot(double leftStickX, double leftStickY, double rightStickX) {

@@ -15,3 +15,10 @@ Expansion Hub
     1:    vertical-slide-2
     2:    front-left
     3:    rear-left
+
+
+    Servos
+    ========================
+    0: arm-rotator
+    1: horizontal-claw
+    2: horizontal-claw-rotator

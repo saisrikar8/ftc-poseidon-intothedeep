@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,19 +12,26 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class HorizontalArm {
     Slide left, right;
-    public HorizontalArm(Slide l, Slide r, Servo lRotator, Servo rRotator){
-        left = l;
-        right = r;
-    }
-    public HorizontalArm(DcMotor l, DcMotor r){
+    public Servo rotator;
+    public HorizontalArm(DcMotor l, DcMotor r, Servo rotatorServo){
         left = new Slide(l);
         right = new Slide(r);
-
+        rotator=rotatorServo;
     }
-    public HorizontalArm(HardwareMap hardwareMap, String lId, String rId, String lRotatorId, String rRotatorId){
-        left = new Slide(hardwareMap, lId);
-        right = new Slide(hardwareMap, rId);
 
+    public class SetOrientation implements Action{
+        private final double orientation;
+        public SetOrientation(double degrees){
+            orientation = degrees/300;
+        }
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            rotator.setPosition(1-orientation);
+            return false;
+        }
+    }
+    public Action setOrientation(double degrees){
+        return new SetOrientation(degrees);
     }
     public Action moveToPosition(int targetPos){
         return new ParallelAction(
