@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.Elevator;
-import org.firstinspires.ftc.teamcode.HorizontalArm;
+import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 
 @TeleOp(name = "Chassis Testing Teleop")
 public class ChassisTestingTeleop extends LinearOpMode {
@@ -21,11 +22,11 @@ public class ChassisTestingTeleop extends LinearOpMode {
     DcMotor backLeft;
     DcMotor backRight;
 
-    DcMotor vertical1,vertical2;
+    DcMotor vertical1, vertical2;
     DcMotor horizontal1, horizontal2;
 
     Elevator elevator;
-    HorizontalArm arm;
+    HorizontalArmRotator arm;
 
     Claw claw;
 
@@ -37,7 +38,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
     TelemetryPacket telemetryPacket = new TelemetryPacket();
 
     private double armDegrees = 120;
-    public void runOpMode(){
+
+    public void runOpMode() {
         //Fetching hardware entities from the robot config
         frontLeft = hardwareMap.get(DcMotor.class, "front-left");
         frontRight = hardwareMap.get(DcMotor.class, "front-right");
@@ -72,33 +74,35 @@ public class ChassisTestingTeleop extends LinearOpMode {
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
 
-        //sorting entities into subsystems
+        // sorting entities into subsystems
         elevator = new Elevator(vertical1, vertical2);
-        arm = new HorizontalArm(horizontal1, horizontal2, armRotator);
-        claw = new Claw(horizontalClaw, null, horizontalClawRotator);
-
+        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
+        claw = new Claw(horizontalClaw, horizontalClawRotator);
 
         waitForStart();
 
+        while (opModeIsActive() && !isStopRequested()) {
+            // Moving robot based on gamepad 1's inputs
+            // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
-        while (opModeIsActive() && !isStopRequested()){
-            //Moving robot based on gamepad 1's inputs
-            moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-
-            if (gamepad2.x){
+            if (gamepad2.x) {
                 armDegrees = 210;
             }
-            if (gamepad2.b){
+            if (gamepad2.b) {
                 armDegrees = 95;
             }
-            if (gamepad2.a){
-               horizontalClaw.setPosition(0.53);
+            if (gamepad2.a) {
+                horizontalClaw.setPosition(0.53);
             }
-            if (gamepad2.y){
+            if (gamepad2.y) {
                 horizontalClaw.setPosition(0.7);
             }
+            if (gamepad1.right_trigger > 0) {
+                returnToInitialPosition();
+            }
 
-            //Running
+            // running
             Actions.runBlocking(
                     new ParallelAction(
                             elevator.setMotorPowers(gamepad2.left_stick_y),
@@ -111,6 +115,41 @@ public class ChassisTestingTeleop extends LinearOpMode {
             telemetry.update();
         }
     }
+
+    public void returnToInitialPosition() {
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(100), claw.setClawRotatorPosition(0.5), claw.setClawPosition(0.7)));
+    }
+
+    public void moveClaw(double leftStickX, double rightStickY, boolean gamepadYUp, boolean gamepadADown) {
+        // move vertically
+        leftStickX /= 1000;
+        rightStickY /= 1000;
+
+        double horizontalPosition = (horizontalClawRotator.getPosition() + rightStickY);
+        if (horizontalPosition > 1 || horizontalPosition < 0) {
+            horizontalPosition = horizontalClawRotator.getPosition();
+        }
+        horizontalClawRotator.setPosition(horizontalPosition);
+        telemetry.addData("CLAW HORIZONTAL POSITION: ", horizontalPosition);
+
+        // open and close claw position, uses RIGHT STICK LEFT AND RIGHT
+        double clawOpenPosition = (horizontalClaw.getPosition() + leftStickX);
+        if (clawOpenPosition > 1 || clawOpenPosition < 0) {
+            clawOpenPosition = horizontalClaw.getPosition();
+        }
+        horizontalClaw.setPosition(clawOpenPosition);
+        telemetry.addData("CLAW OPEN CLOSE POSITION: ", clawOpenPosition);
+
+        double moveArmRotatorDiff = armRotator.getPosition();
+        if (gamepadYUp) moveArmRotatorDiff += 0.05;
+        if (gamepadADown) moveArmRotatorDiff -= 0.05;
+        if (moveArmRotatorDiff > 1 || moveArmRotatorDiff < 0) {
+            moveArmRotatorDiff = armRotator.getPosition();
+        }
+        armRotator.setPosition(moveArmRotatorDiff);
+        telemetry.addData("MAIN ARM MOTOR: ", moveArmRotatorDiff);
+    }
+
     public void moveRobot(double leftStickX, double leftStickY, double rightStickX) {
         double speed = leftStickY;   // Forward/Backward movement
         double strafe = -leftStickX;  // Left/Right movement (strafe)
