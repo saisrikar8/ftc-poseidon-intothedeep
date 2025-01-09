@@ -16,7 +16,6 @@ public class Claw {
         clawRotator = clawRotater;
     }
 
-
     public class SetOrientation implements Action {
         private double orientation;
 

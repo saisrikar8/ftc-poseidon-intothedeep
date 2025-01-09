@@ -13,46 +13,58 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Elevator {
     Slide right, left;
-    public Elevator(Slide r, Slide l){
+
+    public Elevator(Slide r, Slide l) {
         left = l;
         right = r;
     }
-    public Elevator(DcMotor r, DcMotor l){
+
+    public Elevator(DcMotor r, DcMotor l) {
         left = new Slide(l);
         right = new Slide(r);
     }
-    public Elevator(HardwareMap hardwareMap, String rId, String lId){
+
+    public Elevator(HardwareMap hardwareMap, String rId, String lId) {
         left = new Slide(hardwareMap, lId);
         right = new Slide(hardwareMap, rId);
     }
-    public Action moveToPosition(int targetPos){
+
+    public Action moveToPosition(int targetPos) {
         return new ParallelAction(
                 right.moveToPosition(targetPos),
                 left.moveToPosition(targetPos)
         );
     }
-    public Action stayAtRest(Gamepad gamepad1){
+
+    public Action stayAtRest(Gamepad gamepad1) {
         return new ParallelAction(
                 right.stayAtRest(gamepad1),
                 left.stayAtRest(gamepad1)
         );
     }
-    public Action moveToHighestPosition(){
+
+    public Action moveToHighestPosition() {
         return new ParallelAction(
                 right.moveToFourStageHighestPos(),
                 left.moveToFourStageHighestPos()
         );
     }
-    public Action moveToLowestPosition(){
+
+    public Action moveToLowestPosition() {
         return new ParallelAction(
-          right.moveToLowestPos(),
-          left.moveToLowestPos()
+                right.moveToLowestPos(),
+                left.moveToLowestPos()
         );
     }
-    public Action setMotorPowers(double power){
+
+    public Action setMotorPowers(double power) {
         return new ParallelAction(
-          right.setMotorPower(power),
-          left.setMotorPower(power)
+                right.setMotorPower(power),
+                left.setMotorPower(power)
         );
+    }
+
+    public Action motorsStayAtRest(Gamepad gamepad) {
+        return new ParallelAction(left.stayAtRest(gamepad), right.stayAtRest(gamepad));
     }
 }

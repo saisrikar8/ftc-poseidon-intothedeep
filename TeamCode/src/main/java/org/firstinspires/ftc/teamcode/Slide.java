@@ -44,7 +44,6 @@ public class Slide {
             double motorPower = motor.getPower();
             telemetryPacket.put("slideMotorPosition", motorPosition);
             telemetryPacket.put("slideMotorPower", motorPower);
-            // terminiating if condition, true keeps running, false causes stop
             return false;
         }
     }
