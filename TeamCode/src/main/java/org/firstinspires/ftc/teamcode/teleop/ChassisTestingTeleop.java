@@ -33,12 +33,14 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     Servo horizontalClaw, horizontalClawRotator;
 
-    Servo verticalClaw;
+    Servo verticalClaw, verticalClawRotator;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
 
     private double armDegrees = 120;
+    private double claw2Pos = 0.8264;
+    private double verticalDegrees;
 
     public void runOpMode() throws InterruptedException {
         //Fetching hardware entities from the robot config
@@ -58,6 +60,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
         horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
 
         verticalClaw = hardwareMap.get(Servo.class, "vertical-claw");
+        verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
 
         // Setting the entities' characteristics
         vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -74,8 +77,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
-
-
+        //-227, -241
         // sorting entities into subsystems
         elevator = new Elevator(vertical1, vertical2);
         arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
@@ -88,13 +90,13 @@ public class ChassisTestingTeleop extends LinearOpMode {
             boolean verticalSlideLimitReached = false;
             // Moving robot based on gamepad 1's inputs
             // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-            moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
+            //moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
             if (gamepad2.x) {
-                armDegrees = 210;
+                claw2Pos = 0.95;
             }
             if (gamepad2.b) {
-                armDegrees = 95;
+                claw2Pos = 0.81;
             }
             if (gamepad2.a) {
                 horizontalClaw.setPosition(0.53);
@@ -111,35 +113,28 @@ public class ChassisTestingTeleop extends LinearOpMode {
             if (gamepad2.right_stick_x > 0.3) {
                 returnHorizontalToPickupPosition();
             }
-
-            if (gamepad1.left_bumper) {
-                Actions.runBlocking(claw2.setClawPosition(0.8));
-                // verticalClaw.setPosition(verticalClaw.getPosition() - 0.05);
-            }
-            if (gamepad1.right_bumper) {
-                Actions.runBlocking(claw2.setClawPosition(0.3));
-                // verticalClaw.setPosition(verticalClaw.getPosition() + 0.05);
-            }
+            verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x/100);
 
             // running
             Actions.runBlocking(
                     new ParallelAction(
                             elevator.setMotorPowers(gamepad2.left_stick_y),
                             arm.setMotorPowers(gamepad2.right_stick_x),
-                            arm.setOrientation(armDegrees)
+                            arm.setOrientation(armDegrees),
+                            claw2.setClawPosition(claw2Pos)
                     )
             );
 
             telemetry.addData("left rotator", arm.rotator.getPosition());
             telemetry.addData("vertical slide 1 pos: ", vertical1.getCurrentPosition());
             telemetry.addData("vertical slide 2 pos: ", vertical2.getCurrentPosition());
-            telemetry.addData("vertical claw pos: ", vertical1.getPortNumber());
+            telemetry.addData("vertical claw pos: ", claw2Pos);
             telemetry.update();
         }
     }
 
     public void returnHorizontalToInitialPosition() throws InterruptedException {
-        armDegrees = 85;
+        armDegrees = 90;
         Actions.runBlocking(claw.setClawPosition(0.5));
         Thread.sleep(250);
         Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.3)));
