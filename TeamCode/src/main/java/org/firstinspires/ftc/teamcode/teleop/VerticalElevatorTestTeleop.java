@@ -21,8 +21,10 @@ public class VerticalElevatorTestTeleop extends LinearOpMode {
         updateTelemetry();
 
         waitForStart();
-        updateTelemetry();
-        Actions.runBlocking(elevator.setMotorPowers(gamepad2.left_stick_y));
+        while (!isStopRequested() && opModeIsActive()) {
+            updateTelemetry();
+            Actions.runBlocking(elevator.setMotorPowers(gamepad2.left_stick_y));
+        }
     }
 
     void updateTelemetry() {
