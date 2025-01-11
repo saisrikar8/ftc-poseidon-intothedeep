@@ -19,24 +19,29 @@ public class v1 {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-16, -60, Math.toRadians(90)))
+                        // move to first yellow sample
                         .splineToConstantHeading(new Vector2d(-68, -30), Math.toRadians(90))
                         .addDisplacementMarker(()->{
                             // claw to pickup position
                             // claw close on sample
                         })
+                        // move to base
                         .splineTo(new Vector2d(-60, -60), Math.toRadians(90))
                         .addDisplacementMarker(()->{
                             // open claw to drop sample
                         })
+                        // move to second yellow sample
                         .splineTo(new Vector2d(-60, -30), Math.toRadians(90))
                         .addDisplacementMarker(()->{
                             // claw to pickup position
                             // claw close on sample
                         })
+                        // move to base
                         .splineTo(new Vector2d(-60, -60), Math.toRadians(90))
                         .addDisplacementMarker(()->{
                             // open claw to drop sample
                         })
+                        // third yellow sample
                         .splineTo(new Vector2d(-48, -30), Math.toRadians(90))
                         .addDisplacementMarker(()->{
                             // claw to pickup position
