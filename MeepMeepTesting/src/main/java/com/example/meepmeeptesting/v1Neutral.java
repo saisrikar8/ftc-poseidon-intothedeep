@@ -6,7 +6,7 @@ import org.rowlandhall.meepmeep.MeepMeep;
 import org.rowlandhall.meepmeep.roadrunner.DefaultBotBuilder;
 import org.rowlandhall.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-public class v1 {
+public class v1Neutral {
     /*
     INTO THE DEEP: https://www.youtube.com/watch?v=ewlDPvRK4U4
     Start neutral side.

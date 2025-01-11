@@ -10,12 +10,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "v1 Auto")
-public class v1 extends LinearOpMode {
+@Autonomous(name = "v1 Neutral Auto")
+public class v1ColorSide extends LinearOpMode {
     int ARM_DEGREES = 210; // initial arm degrees, will run IMMEDIATELY when the op mode start
     DcMotor frontLeft, frontRight, backLeft, backRight;
     DcMotor horizontal1, horizontal2;
@@ -57,12 +58,12 @@ public class v1 extends LinearOpMode {
         telemetry.addData("Stage", "Sample 1");
         telemetry.update();
         // move to first sample leftmost
-        TrajectoryActionBuilder traj1 = drive.actionBuilder(currentPose).splineToConstantHeading(new Vector2d(-68, -30), Math.toRadians(90));
+        TrajectoryActionBuilder traj1 = drive.actionBuilder(currentPose).splineToConstantHeading(new Vector2d(68, -30), Math.toRadians(90));
         Actions.runBlocking(traj1.build());
         // pickup sample
         Actions.runBlocking(grabSample());
         // return back to base plate
-        TrajectoryActionBuilder traj2 = traj1.endTrajectory().fresh().splineTo(new Vector2d(-60, -60), Math.toRadians(90));
+        TrajectoryActionBuilder traj2 = traj1.endTrajectory().fresh().splineTo(new Vector2d(60, -60), Math.toRadians(90));
         Actions.runBlocking(traj2.build());
         // drop sample
         Actions.runBlocking(releaseClaw());
@@ -70,12 +71,12 @@ public class v1 extends LinearOpMode {
         telemetry.addData("Stage", "Sample 2");
         telemetry.update();
         // move to second yellow sample
-        TrajectoryActionBuilder traj3 = traj2.endTrajectory().fresh().splineTo(new Vector2d(-60, -30), Math.toRadians(90));
+        TrajectoryActionBuilder traj3 = traj2.endTrajectory().fresh().splineTo(new Vector2d(60, -30), Math.toRadians(90));
         Actions.runBlocking(traj3.build());
         // pickup sample
         Actions.runBlocking(grabSample());
         // return back to base plate
-        TrajectoryActionBuilder traj4 = traj3.endTrajectory().fresh().splineTo(new Vector2d(-60, -60), Math.toRadians(90));
+        TrajectoryActionBuilder traj4 = traj3.endTrajectory().fresh().splineTo(new Vector2d(60, -60), Math.toRadians(90));
         Actions.runBlocking(traj4.build());
         // drop sample
         Actions.runBlocking(releaseClaw());
@@ -83,12 +84,12 @@ public class v1 extends LinearOpMode {
         telemetry.addData("Stage", "Sample 3");
         telemetry.update();
         // third yellow sample
-        TrajectoryActionBuilder traj5 = traj4.endTrajectory().fresh().splineTo(new Vector2d(-48, -30), Math.toRadians(90));
+        TrajectoryActionBuilder traj5 = traj4.endTrajectory().fresh().splineTo(new Vector2d(48, -30), Math.toRadians(90));
         Actions.runBlocking(traj5.build());
         // pickup sample
         Actions.runBlocking(grabSample());
         // return back to base plate
-        TrajectoryActionBuilder traj6 = traj5.endTrajectory().fresh().splineTo(new Vector2d(-60, -60), Math.toRadians(90));
+        TrajectoryActionBuilder traj6 = traj5.endTrajectory().fresh().splineTo(new Vector2d(60, -60), Math.toRadians(90));
         Actions.runBlocking(traj6.build());
         // drop sample
         Actions.runBlocking(releaseClaw());
