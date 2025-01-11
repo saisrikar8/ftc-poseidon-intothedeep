@@ -82,7 +82,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
         elevator = new Elevator(vertical1, vertical2);
         arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
         claw = new Claw(horizontalClaw, horizontalClawRotator);
-        claw2 = new Claw(verticalClaw, null);
+        claw2 = new Claw(verticalClaw, verticalClawRotator);
 
         waitForStart();
 
