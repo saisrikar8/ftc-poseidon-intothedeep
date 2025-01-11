@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -57,12 +58,12 @@ public class v1 extends LinearOpMode {
         telemetry.update();
         // move to first sample leftmost
         TrajectoryActionBuilder traj1 = drive.actionBuilder(currentPose).splineToConstantHeading(new Vector2d(-68, -30), Math.toRadians(90));
-        Actions.runBlocking(traj1);
+        Actions.runBlocking(traj1.build());
         // pickup sample
         Actions.runBlocking(grabSample());
         // return back to base plate
         TrajectoryActionBuilder traj2 = traj1.endTrajectory().fresh().splineTo(new Vector2d(-60, -60), Math.toRadians(90));
-        Actions.runBlocking(traj2);
+        Actions.runBlocking(traj2.build());
         // drop sample
         Actions.runBlocking(releaseClaw());
 
@@ -70,12 +71,12 @@ public class v1 extends LinearOpMode {
         telemetry.update();
         // move to second yellow sample
         TrajectoryActionBuilder traj3 = traj2.endTrajectory().fresh().splineTo(new Vector2d(-60, -30), Math.toRadians(90));
-        Actions.runBlocking(traj3);
+        Actions.runBlocking(traj3.build());
         // pickup sample
         Actions.runBlocking(grabSample());
         // return back to base plate
         TrajectoryActionBuilder traj4 = traj3.endTrajectory().fresh().splineTo(new Vector2d(-60, -60), Math.toRadians(90));
-        Actions.runBlocking(traj4);
+        Actions.runBlocking(traj4.build());
         // drop sample
         Actions.runBlocking(releaseClaw());
 
@@ -83,35 +84,33 @@ public class v1 extends LinearOpMode {
         telemetry.update();
         // third yellow sample
         TrajectoryActionBuilder traj5 = traj4.endTrajectory().fresh().splineTo(new Vector2d(-48, -30), Math.toRadians(90));
-        Actions.runBlocking(traj5);
+        Actions.runBlocking(traj5.build());
         // pickup sample
         Actions.runBlocking(grabSample());
         // return back to base plate
         TrajectoryActionBuilder traj6 = traj5.endTrajectory().fresh().splineTo(new Vector2d(-60, -60), Math.toRadians(90));
-        Actions.runBlocking(traj6);
+        Actions.runBlocking(traj6.build());
         // drop sample
         Actions.runBlocking(releaseClaw());
         telemetry.addData("Stage", "DONE");
         telemetry.update();
 
     }
-    void returnClawToStart() {
+    Action returnClawToStart() {
         ARM_DEGREES = 210;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawRotatorPosition(0.99), claw.setClawPosition(0.7)));
+        return new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawRotatorPosition(0.99), claw.setClawPosition(0.7));
     }
 
-    void grabSample() throws InterruptedException {
-        Actions.runBlocking(claw.setClawPosition(0.5));
-        Thread.sleep(250); // wait a bit for it to grab
+    Action grabSample() throws InterruptedException {
+        return claw.setClawPosition(0.5);
     }
-    void releaseClaw() throws InterruptedException {
-        Actions.runBlocking(claw.setClawPosition(0.3));
-        Thread.sleep(250);
+    Action releaseClaw() throws InterruptedException {
+        return claw.setClawPosition(0.3);
     }
 
-    void returnClawToTop() {
+    Action returnClawToTop() {
         ARM_DEGREES = 90;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawRotatorPosition(0.3)));
+        return new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawRotatorPosition(0.3));
     }
 
 }
