@@ -29,11 +29,29 @@ public class Elevator {
         right = new Slide(hardwareMap, rId);
     }
 
-    public Action moveToPosition(int targetPos) {
-        return new ParallelAction(
-                right.moveToPosition(targetPos),
-                left.moveToPosition(targetPos)
-        );
+    public Action moveToPosition(int oneSlideTargetPos) {
+        return new MoveToPosition(oneSlideTargetPos);
+//        return new ParallelAction(
+//                right.moveToPosition(targetPos),
+//                left.moveToPosition(targetPos)
+//        );
+    }
+
+    public class MoveToPosition implements Action {
+        int targetPos;
+
+        public MoveToPosition(int targetPos) {
+            this.targetPos = targetPos;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            int currentPosition = left.getCurrentPosition();
+            left.setMotorPower(0.2);
+            right.setMotorPower(0.2);
+            // stop when current position is within upper and lower bound
+            return (targetPos - 1000 < currentPosition && currentPosition < targetPos + 1000);
+        }
     }
 
     public Action stayAtRest(Gamepad gamepad1) {

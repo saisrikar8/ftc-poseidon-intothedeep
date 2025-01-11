@@ -30,6 +30,9 @@ public class Slide {
         motor = slideMotor;
         startingPosition = motor.getCurrentPosition();
     }
+    public int getCurrentPosition() {
+        return motor.getCurrentPosition();
+    }
 
     public class TestMoveABit implements Action {
         private boolean initialized = false;

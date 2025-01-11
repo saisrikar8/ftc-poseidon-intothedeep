@@ -27,6 +27,7 @@ public class v2 extends LinearOpMode {
     MecanumDrive drive;
     Elevator elevator;
     Pose2d currentPose;
+    int VERTICAL_SLIDE_START_POSITION;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -53,6 +54,7 @@ public class v2 extends LinearOpMode {
         claw2 = new Claw(verticalClaw, verticalClawRotator);
         elevator = new Elevator(vertical1, vertical2);
 
+        VERTICAL_SLIDE_START_POSITION = vertical1.getCurrentPosition();
         currentPose = new Pose2d(-16, -60, Math.toRadians(90));
         drive = new MecanumDrive(hardwareMap, currentPose);
 
@@ -75,6 +77,8 @@ public class v2 extends LinearOpMode {
         Actions.runBlocking(traj2.build());
         // transfer sample - now horizontal claw is down and vertical claw has sample
         clawTransfer();
+        // move vertical slide to basket
+        moveVerticalSlidesToBasket();
         // rotate vertical claw
         Actions.runBlocking(verticalClawToDropPosition());
         // drop that thang
@@ -92,6 +96,8 @@ public class v2 extends LinearOpMode {
         Actions.runBlocking(traj4.build());
         // transfer sample - now horizontal claw is down and vertical claw has sample
         clawTransfer();
+        // move vertical slide to basket
+        moveVerticalSlidesToBasket();
         // rotate vertical claw
         Actions.runBlocking(verticalClawToDropPosition());
         // drop that thang
@@ -109,6 +115,8 @@ public class v2 extends LinearOpMode {
         Actions.runBlocking(traj6.build());
         // transfer sample - now horizontal claw is down and vertical claw has sample
         clawTransfer();
+        // move vertical slide to basket
+        moveVerticalSlidesToBasket();
         // rotate vertical claw
         Actions.runBlocking(verticalClawToDropPosition());
         // drop that thang
@@ -145,6 +153,7 @@ public class v2 extends LinearOpMode {
         // TODO: validate units
         return claw2.setClawPosition(0.3);
     }
+
     Action releaseVerticalClaw() {
         // TODO: validate units
         return claw2.setClawRotatorPosition(0.7);
@@ -153,6 +162,13 @@ public class v2 extends LinearOpMode {
     Action verticalClawToDropPosition() {
         // TODO: validate units
         return claw2.setClawRotatorPosition(0.3);
+    }
+
+    Action moveVerticalSlidesToBasket() {
+        // TODO: test this, was made WITHOUT ANY robot testing
+        int LOW_BASKET_TARGET_DIFF = 2500; // difference in slide at bottom and desired encoder pos
+        int HIGH_BASKET_TARGET_DIFF = 5000;
+        return elevator.moveToPosition(HIGH_BASKET_TARGET_DIFF + VERTICAL_SLIDE_START_POSITION);
     }
 
     void clawTransfer() throws InterruptedException {
