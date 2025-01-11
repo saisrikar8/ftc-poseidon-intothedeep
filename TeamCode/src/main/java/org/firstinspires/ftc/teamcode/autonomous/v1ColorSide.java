@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "v1 Neutral Auto")
+@Autonomous(name = "v1 Colorside")
 public class v1ColorSide extends LinearOpMode {
     int ARM_DEGREES = 210; // initial arm degrees, will run IMMEDIATELY when the op mode start
     DcMotor frontLeft, frontRight, backLeft, backRight;

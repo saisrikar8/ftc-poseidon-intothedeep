@@ -16,6 +16,12 @@ import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 
 @TeleOp(name = "Chassis Testing Teleop")
 public class ChassisTestingTeleop extends LinearOpMode {
+
+    //1: 2846
+    //2: 2766
+
+    //1: 3273
+    //2: 3285
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
@@ -39,7 +45,10 @@ public class ChassisTestingTeleop extends LinearOpMode {
     TelemetryPacket telemetryPacket = new TelemetryPacket();
 
     private double armDegrees = 120;
-    private double claw2Pos = 0.8264;
+    private double claw2Pos = 1;
+
+    private double vertical1StartPos;
+    private double vertical2StartPos;
     private double verticalDegrees;
 
     public void runOpMode() throws InterruptedException {
@@ -63,6 +72,9 @@ public class ChassisTestingTeleop extends LinearOpMode {
         verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
 
         // Setting the entities' characteristics
+        vertical1StartPos = vertical1.getCurrentPosition();
+        vertical2StartPos = vertical2.getCurrentPosition();
+
         vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         vertical1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -84,19 +96,26 @@ public class ChassisTestingTeleop extends LinearOpMode {
         claw = new Claw(horizontalClaw, horizontalClawRotator);
         claw2 = new Claw(verticalClaw, verticalClawRotator);
 
+
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
             boolean verticalSlideLimitReached = false;
             // Moving robot based on gamepad 1's inputs
-            // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             //moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
+            if (gamepad2.dpad_right){
+                verticalClawRotator.setPosition(0.0806);
+            }
+            if(gamepad2.dpad_left){
+                verticalClawRotator.setPosition(0.7456);
+            }
             if (gamepad2.x) {
-                claw2Pos = 0.95;
+                claw2Pos = 0.7;
             }
             if (gamepad2.b) {
-                claw2Pos = 0.81;
+                claw2Pos = 0.9;
             }
             if (gamepad2.a) {
                 horizontalClaw.setPosition(0.53);
@@ -110,10 +129,10 @@ public class ChassisTestingTeleop extends LinearOpMode {
             if (gamepad2.left_bumper) {
                 returnHorizontalToPickupPosition();
             }
-            if (gamepad2.right_stick_x > 0.3) {
+            if (gamepad2.right_stick_x > 0.6) {
                 returnHorizontalToPickupPosition();
             }
-            verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x/100);
+            //verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x / 100);
 
             // running
             Actions.runBlocking(
@@ -124,8 +143,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
                             claw2.setClawPosition(claw2Pos)
                     )
             );
-
-            telemetry.addData("left rotator", arm.rotator.getPosition());
+            telemetry.addData("vertical rotator", verticalClawRotator.getPosition());
             telemetry.addData("vertical slide 1 pos: ", vertical1.getCurrentPosition());
             telemetry.addData("vertical slide 2 pos: ", vertical2.getCurrentPosition());
             telemetry.addData("vertical claw pos: ", claw2Pos);
@@ -134,8 +152,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
     }
 
     public void returnHorizontalToInitialPosition() throws InterruptedException {
-        armDegrees = 90;
-        Actions.runBlocking(claw.setClawPosition(0.5));
+        armDegrees = 100;
+        Actions.runBlocking(claw.setClawPosition(0.49));
         Thread.sleep(250);
         Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.3)));
     }
@@ -144,6 +162,24 @@ public class ChassisTestingTeleop extends LinearOpMode {
         armDegrees = 210;
         Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.99), claw.setClawPosition(0.7)));
     }
+
+    public void autoIntake() throws InterruptedException {
+        returnHorizontalToInitialPosition();
+        vertical1.setTargetPosition((int)vertical1StartPos+2846-3273);
+        vertical2.setTargetPosition((int)vertical2StartPos + 2766-3285);
+        vertical1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (vertical1.isBusy() && vertical2.isBusy()) {
+            vertical1.setPower(0.5);
+            vertical2.setPower(0.5);
+        }
+        vertical1.setPower(0);
+        vertical2.setPower(0);
+        vertical1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        horizontalClaw.setPosition(1);
+    }
+
     public void returnVerticalToOpenPosition() {
         Actions.runBlocking(claw2.setClawPosition(0.5));
     }
@@ -211,5 +247,4 @@ public class ChassisTestingTeleop extends LinearOpMode {
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
     }
-
 }

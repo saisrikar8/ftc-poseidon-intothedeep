@@ -83,7 +83,12 @@ public class Slide {
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             if (gamepad.atRest() && !(gamepad.a || gamepad.b || gamepad.x || gamepad.y)) {
-                motor.setPower(0.02);
+                if (motor.isBusy()){
+                    motor.setPower(0.08);
+                }
+                else{
+                    motor.setPower(0);
+                }
                 return true;
             }
             motor.setPower(0);
