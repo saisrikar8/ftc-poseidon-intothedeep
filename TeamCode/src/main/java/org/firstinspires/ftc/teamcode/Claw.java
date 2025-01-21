@@ -4,16 +4,21 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Claw {
-    public Servo claw, clawRotator, armRotator;
+    public Servo claw, clawPitch, armRotator, clawYaw;
 
     public Claw(Servo clawServo, Servo clawRotater) {
         claw = clawServo;
-        clawRotator = clawRotater;
+        clawPitch = clawRotater;
+    }
+
+    public Claw(Servo claw, Servo clawPitch, Servo clawYaw, Servo armRotator) {
+        this.claw = claw;
+        this.clawPitch = clawPitch;
+        this.clawYaw = clawYaw;
+        this.armRotator = armRotator;
     }
 
     public class SetOrientation implements Action {
@@ -25,7 +30,7 @@ public class Claw {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            if (clawRotator != null) clawRotator.setPosition(orientation);
+            if (clawPitch != null) clawPitch.setPosition(orientation);
             return false;
         }
     }
@@ -44,20 +49,33 @@ public class Claw {
         }
     }
 
-    public class SetClawRotatorPosition implements Action {
+    public class SetClawPitch implements Action {
         double position;
 
-        public SetClawRotatorPosition(double clawPos) {
+        public SetClawPitch(double clawPos) {
             this.position = clawPos;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            clawRotator.setPosition(position);
+            clawPitch.setPosition(position);
             return false;
         }
     }
 
+    public class SetClawYaw implements Action {
+        double position;
+
+        SetClawYaw(double clawPosition) {
+            this.position = clawPosition;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            clawYaw.setPosition(position);
+            return false;
+        }
+    }
 
     public class SetArmRotatorPosition implements Action {
         private double position;
@@ -82,8 +100,12 @@ public class Claw {
         return new SetClawPosition(position);
     }
 
-    public Action setClawRotatorPosition(double position) {
-        return new SetClawRotatorPosition(position);
+    public Action setClawPitch(double position) {
+        return new SetClawPitch(position);
+    }
+
+    public Action setClawYaw(double position) {
+        return new SetClawYaw(position);
     }
 
     public Action setArmRotatorOrientation(double position) {

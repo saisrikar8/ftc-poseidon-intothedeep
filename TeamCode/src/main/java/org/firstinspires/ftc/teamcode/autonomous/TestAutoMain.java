@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.opencv.features2d.MSER;
 
 @Autonomous(name = "TestAutoMain")
 public class TestAutoMain extends LinearOpMode {
@@ -91,7 +90,7 @@ public class TestAutoMain extends LinearOpMode {
 
     void returnClawToStart() {
         armDegrees = 210;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.99), claw.setClawPosition(0.7)));
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
     }
 
     void grabSample() throws InterruptedException {
@@ -101,6 +100,6 @@ public class TestAutoMain extends LinearOpMode {
 
     void returnClawToTop() {
         armDegrees = 90;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.3)));
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawPitch(0.3)));
     }
 }

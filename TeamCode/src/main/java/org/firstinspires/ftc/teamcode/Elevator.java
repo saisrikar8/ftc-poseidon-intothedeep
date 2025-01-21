@@ -50,7 +50,7 @@ public class Elevator {
             left.setMotorPower(0.2);
             right.setMotorPower(0.2);
             // stop when current position is within upper and lower bound
-            return (targetPos - 1000 < currentPosition && currentPosition < targetPos + 1000);
+            return (targetPos - 100 < currentPosition && currentPosition < targetPos + 100);
         }
     }
 

@@ -16,6 +16,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class SampleDetection extends LinearOpMode {
     OpenCvPipeline pipeline;
     OpenCvCamera camera;
+
     @Override
     public void runOpMode() throws InterruptedException {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -42,7 +43,7 @@ public class SampleDetection extends LinearOpMode {
 
         waitForStart();
 
-        while (opModeIsActive() && !isStopRequested()){
+        while (opModeIsActive() && !isStopRequested()) {
             telemetry.addData("FPS", camera.getFps());
             telemetry.addData("Pipeline runtime", camera.getPipelineTimeMs());
             telemetry.addData("Frame count", camera.getFrameCount());
