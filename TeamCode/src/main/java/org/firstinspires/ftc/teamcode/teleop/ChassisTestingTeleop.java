@@ -13,6 +13,7 @@ import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_VERTICALS
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -47,8 +48,9 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
-    private double ARM_DEGREES = ARM_STAGE1_DEG;
-    private double HORIZONTAL_CLAW_YAW = HORIZONTAL_CLAW_IDLE_YAW;
+    private double CURRENT_ARM_DEGREES = ARM_STAGE1_DEG;
+    private double CURRENT_HORIZONTAL_CLAW_YAW = HORIZONTAL_CLAW_IDLE_YAW;
+    private double CURRENT_CLAW_POSITION = HORIZONTAL_CLAW_CLOSE_POS;
     private double claw2Pos = 1;
 
     private double vertical1StartPos;
@@ -112,10 +114,10 @@ public class ChassisTestingTeleop extends LinearOpMode {
             moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
             // claw yaw test
             if (gamepad1.dpad_left) {
-                HORIZONTAL_CLAW_YAW = HORIZONTAL_CLAW_YAW - 0.05;
+                CURRENT_HORIZONTAL_CLAW_YAW = CURRENT_HORIZONTAL_CLAW_YAW - 0.05;
             }
             if (gamepad1.dpad_right) {
-                HORIZONTAL_CLAW_YAW = HORIZONTAL_CLAW_YAW + 0.05;
+                CURRENT_HORIZONTAL_CLAW_YAW = CURRENT_HORIZONTAL_CLAW_YAW + 0.05;
             }
 
 
@@ -142,19 +144,20 @@ public class ChassisTestingTeleop extends LinearOpMode {
                 horizontalClaw.setPosition(0.7);
             }
             if (gamepad2.left_bumper) {
-                ARM_DEGREES = ARM_STAGE1_DEG;
+                CURRENT_ARM_DEGREES = ARM_STAGE1_DEG;
                 Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_TRANSFER_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)));
                 // returnHorizontalToInitialPosition();
             }
             if (gamepad2.right_bumper) {
-                ARM_DEGREES = ARM_STAGE2_DEG;
+                CURRENT_ARM_DEGREES = ARM_STAGE2_DEG;
                 Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_AIM_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)));
             }
             if (gamepad2.right_trigger > 0.5) {
-                ARM_DEGREES = ARM_STAGE3_DEG;
+                CURRENT_ARM_DEGREES = ARM_STAGE3_DEG;
+                CURRENT_CLAW_POSITION = HORIZONTAL_CLAW_CLOSE_POS;
                 Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)));
-                Thread.sleep(300);
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_CLOSE_POS));
+                sleep(300);
+                Actions.runBlocking(claw.setClawPosition(CURRENT_CLAW_POSITION));
             }
             if (gamepad2.right_stick_x > 0.6) {
                 returnHorizontalToPickupPosition();
@@ -166,8 +169,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
                     new ParallelAction(
                             elevator.setMotorPowers(gamepad2.left_stick_y),
                             arm.setMotorPowers(gamepad2.right_stick_x),
-                            arm.setOrientation(ARM_DEGREES),
-                            claw.setClawYaw(HORIZONTAL_CLAW_YAW),
+                            arm.setOrientation(CURRENT_ARM_DEGREES),
+                            claw.setClawYaw(CURRENT_HORIZONTAL_CLAW_YAW),
                             claw2.setClawPosition(claw2Pos)
                     )
             );
@@ -180,15 +183,15 @@ public class ChassisTestingTeleop extends LinearOpMode {
     }
 
     public void returnHorizontalToInitialPosition() throws InterruptedException {
-        ARM_DEGREES = ARM_STAGE1_DEG;
+        CURRENT_ARM_DEGREES = ARM_STAGE1_DEG;
         Actions.runBlocking(claw.setClawPosition(0.49));
         Thread.sleep(250);
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.3)));
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(CURRENT_ARM_DEGREES), claw.setClawPitch(0.3)));
     }
 
     public void returnHorizontalToPickupPosition() {
-        ARM_DEGREES = ARM_STAGE3_DEG;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
+        CURRENT_ARM_DEGREES = ARM_STAGE3_DEG;
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(CURRENT_ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
     }
 
     public void autoIntake() throws InterruptedException {
