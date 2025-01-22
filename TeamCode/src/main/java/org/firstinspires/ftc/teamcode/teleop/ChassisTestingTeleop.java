@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE1_DEG;
+import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE2_DEG;
+import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE3_DEG;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_AIM_POS_PITCH;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -16,12 +23,6 @@ import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 
 @TeleOp(name = "Chassis Testing Teleop")
 public class ChassisTestingTeleop extends LinearOpMode {
-
-    //1: 2846
-    //2: 2766
-
-    //1: 3273
-    //2: 3285
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
@@ -43,8 +44,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
-
-    private double armDegrees = 120;
+    private double ARM_DEGREES = ARM_STAGE1_DEG;
     private double claw2Pos = 1;
 
     private double vertical1StartPos;
@@ -52,11 +52,12 @@ public class ChassisTestingTeleop extends LinearOpMode {
     private double verticalDegrees;
 
     public void runOpMode() throws InterruptedException {
+
         //Fetching hardware entities from the robot config
-        frontLeft = hardwareMap.get(DcMotor.class, "front-left");
-        frontRight = hardwareMap.get(DcMotor.class, "front-right");
-        backLeft = hardwareMap.get(DcMotor.class, "rear-left");
-        backRight = hardwareMap.get(DcMotor.class, "rear-right");
+//        frontLeft = hardwareMap.get(DcMotor.class, "front-left");
+//        frontRight = hardwareMap.get(DcMotor.class, "front-right");
+//        backLeft = hardwareMap.get(DcMotor.class, "rear-left");
+//        backRight = hardwareMap.get(DcMotor.class, "rear-right");
 
         vertical1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
         vertical2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
@@ -82,13 +83,13 @@ public class ChassisTestingTeleop extends LinearOpMode {
         horizontal1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         horizontal2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+//        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        frontRight.setDirection(DcMotor.Direction.REVERSE);
+//        backRight.setDirection(DcMotor.Direction.REVERSE);
         //-227, -241
         // sorting entities into subsystems
         elevator = new Elevator(vertical1, vertical2);
@@ -102,15 +103,19 @@ public class ChassisTestingTeleop extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             boolean verticalSlideLimitReached = false;
             // Moving robot based on gamepad 1's inputs
-            moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-            //moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
+            // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
-            if (gamepad2.dpad_right){
-                verticalClawRotator.setPosition(0.0806);
+            // TODO: dpads not working rn, fix later
+            if (gamepad2.dpad_right) {
+                // up, transfer position
+                verticalClawRotator.setPosition(HORIZONTAL_CLAW_TRANSFER_POS_PITCH);
             }
-            if(gamepad2.dpad_left){
-                verticalClawRotator.setPosition(0.7456);
+            if (gamepad2.dpad_left) {
+                // down, pickup position
+                verticalClawRotator.setPosition(HORIZONTAL_CLAW_PICKUP_POS_PITCH);
             }
+
             if (gamepad2.x) {
                 claw2Pos = 0.7;
             }
@@ -123,23 +128,31 @@ public class ChassisTestingTeleop extends LinearOpMode {
             if (gamepad2.y) {
                 horizontalClaw.setPosition(0.7);
             }
-            if (gamepad2.right_bumper) {
-                returnHorizontalToInitialPosition();
-            }
             if (gamepad2.left_bumper) {
-                returnHorizontalToPickupPosition();
+                ARM_DEGREES = ARM_STAGE1_DEG;
+                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_TRANSFER_POS_PITCH));
+                // returnHorizontalToInitialPosition();
+            }
+            if (gamepad2.right_bumper) {
+                ARM_DEGREES = ARM_STAGE2_DEG;
+                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_AIM_POS_PITCH));
+                // returnHorizontalToPickupPosition();
+            }
+            if (gamepad2.right_trigger > 0.5) {
+                ARM_DEGREES = ARM_STAGE3_DEG;
+                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_PICKUP_POS_PITCH));
             }
             if (gamepad2.right_stick_x > 0.6) {
                 returnHorizontalToPickupPosition();
             }
-            //verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x / 100);
+            // verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x / 100);
 
             // running
             Actions.runBlocking(
                     new ParallelAction(
                             elevator.setMotorPowers(gamepad2.left_stick_y),
                             arm.setMotorPowers(gamepad2.right_stick_x),
-                            arm.setOrientation(armDegrees),
+                            arm.setOrientation(ARM_DEGREES),
                             claw2.setClawPosition(claw2Pos)
                     )
             );
@@ -152,21 +165,21 @@ public class ChassisTestingTeleop extends LinearOpMode {
     }
 
     public void returnHorizontalToInitialPosition() throws InterruptedException {
-        armDegrees = 100;
+        ARM_DEGREES = ARM_STAGE1_DEG;
         Actions.runBlocking(claw.setClawPosition(0.49));
         Thread.sleep(250);
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.3)));
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.3)));
     }
 
     public void returnHorizontalToPickupPosition() {
-        armDegrees = 210;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(armDegrees), claw.setClawRotatorPosition(0.99), claw.setClawPosition(0.7)));
+        ARM_DEGREES = ARM_STAGE3_DEG;
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
     }
 
     public void autoIntake() throws InterruptedException {
         returnHorizontalToInitialPosition();
-        vertical1.setTargetPosition((int)vertical1StartPos+2846-3273);
-        vertical2.setTargetPosition((int)vertical2StartPos + 2766-3285);
+        vertical1.setTargetPosition((int) vertical1StartPos + 2846 - 3273);
+        vertical2.setTargetPosition((int) vertical2StartPos + 2766 - 3285);
         vertical1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (vertical1.isBusy() && vertical2.isBusy()) {

@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+
 import org.rowlandhall.meepmeep.MeepMeep;
 import org.rowlandhall.meepmeep.roadrunner.DefaultBotBuilder;
 import org.rowlandhall.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -21,29 +22,29 @@ public class v1Neutral {
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-16, -60, Math.toRadians(90)))
                         // move to first yellow sample
                         .splineToConstantHeading(new Vector2d(-68, -30), Math.toRadians(90))
-                        .addDisplacementMarker(()->{
+                        .addDisplacementMarker(() -> {
                             // claw to pickup position
                             // claw close on sample
                         })
                         // move to base
                         .splineTo(new Vector2d(-60, -60), Math.toRadians(90))
-                        .addDisplacementMarker(()->{
+                        .addDisplacementMarker(() -> {
                             // open claw to drop sample
                         })
                         // move to second yellow sample
                         .splineTo(new Vector2d(-60, -30), Math.toRadians(90))
-                        .addDisplacementMarker(()->{
+                        .addDisplacementMarker(() -> {
                             // claw to pickup position
                             // claw close on sample
                         })
                         // move to base
                         .splineTo(new Vector2d(-60, -60), Math.toRadians(90))
-                        .addDisplacementMarker(()->{
+                        .addDisplacementMarker(() -> {
                             // open claw to drop sample
                         })
                         // third yellow sample
                         .splineTo(new Vector2d(-48, -30), Math.toRadians(90))
-                        .addDisplacementMarker(()->{
+                        .addDisplacementMarker(() -> {
                             // claw to pickup position
                             // claw close on sample
                         })

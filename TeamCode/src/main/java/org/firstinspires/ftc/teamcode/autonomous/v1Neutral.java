@@ -6,7 +6,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -14,7 +13,6 @@ import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "v1 Neutral Auto")
 public class v1Neutral extends LinearOpMode {
     int ARM_DEGREES = 210; // initial arm degrees, will run IMMEDIATELY when the op mode start
     DcMotor frontLeft, frontRight, backLeft, backRight;
@@ -98,7 +96,7 @@ public class v1Neutral extends LinearOpMode {
     }
     Action returnClawToStart() {
         ARM_DEGREES = 210;
-        return new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawRotatorPosition(0.99), claw.setClawPosition(0.7));
+        return new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7));
     }
 
     Action grabSample() throws InterruptedException {
@@ -110,7 +108,7 @@ public class v1Neutral extends LinearOpMode {
 
     Action returnClawToTop() {
         ARM_DEGREES = 90;
-        return new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawRotatorPosition(0.3));
+        return new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.3));
     }
 
 }
