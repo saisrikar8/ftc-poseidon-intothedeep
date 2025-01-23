@@ -12,31 +12,31 @@ public class ClawTesting extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
-        horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
-        horizontalClawRotator2 = hardwareMap.get(Servo.class, "horizontal-claw-rotator-2");
+        horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw"); // open claw
+        horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator"); // pitch
+        horizontalClawRotator2 = hardwareMap.get(Servo.class, "horizontal-claw-rotator-2"); // yaw
         armRotator = hardwareMap.get(Servo.class, "arm-rotator");
 
         waitForStart();
-        while (opModeIsActive() && !isStopRequested()){
-            if (gamepad2.a){
+        while (opModeIsActive() && !isStopRequested()) {
+            if (gamepad2.a) {
                 horizontalClaw.setPosition(Constants.HORIZONTAL_CLAW_OPEN_POS);
             }
-            if (gamepad2.b){
+            if (gamepad2.b) {
                 horizontalClaw.setPosition(Constants.HORIZONTAL_CLAW_CLOSE_POS);
             }
-            if (gamepad2.x){
+            if (gamepad2.x) {
                 horizontalClawRotator2.setPosition(Constants.HORIZONTAL_CLAW_IDLE_YAW);
                 horizontalClawRotator.setPosition(Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH);
             }
-            if (gamepad2.y){
+            if (gamepad2.y) {
                 horizontalClawRotator2.setPosition(Constants.HORIZONTAL_CLAW_IDLE_YAW);
                 horizontalClawRotator.setPosition(Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH);
             }
-            if (gamepad2.left_bumper){
+            if (gamepad2.left_bumper) {
 
             }
-            horizontalClawRotator2.setPosition(horizontalClawRotator2.getPosition()+gamepad2.left_stick_x/500);
+            horizontalClawRotator2.setPosition(horizontalClawRotator2.getPosition() + gamepad2.left_stick_x / 500);
             telemetry.addData("open/close", horizontalClaw.getPosition());
             telemetry.addData("pitch", horizontalClawRotator.getPosition());
             telemetry.addData("yaw", horizontalClawRotator2.getPosition());
@@ -44,7 +44,7 @@ public class ClawTesting extends LinearOpMode {
         }
     }
 
-    public double filterPosition(double position){
+    public double filterPosition(double position) {
         return Math.max(0, Math.min(1, position));
     }
 }

@@ -4,12 +4,16 @@ import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE1_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE2_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE3_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_AIM_POS_PITCH;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_CLOSE_POS;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_IDLE_YAW;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,13 +42,15 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     Servo armRotator;
 
-    Servo horizontalClaw, horizontalClawRotator;
+    Servo horizontalClaw, horizontalClawPitch, horizontalClawYaw;
 
     Servo verticalClaw, verticalClawRotator;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
-    private double ARM_DEGREES = ARM_STAGE1_DEG;
+    private double CURRENT_ARM_DEGREES = ARM_STAGE1_DEG;
+    private double CURRENT_HORIZONTAL_CLAW_YAW = HORIZONTAL_CLAW_IDLE_YAW;
+    private double CURRENT_CLAW_POSITION = HORIZONTAL_CLAW_CLOSE_POS;
     private double claw2Pos = 1;
 
     private double vertical1StartPos;
@@ -66,8 +72,9 @@ public class ChassisTestingTeleop extends LinearOpMode {
         horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
         armRotator = hardwareMap.get(Servo.class, "arm-rotator");
 
-        horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
-        horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
+        horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw"); // open claw
+        horizontalClawPitch = hardwareMap.get(Servo.class, "horizontal-claw-rotator"); // pitch
+        horizontalClawYaw = hardwareMap.get(Servo.class, "horizontal-claw-rotator-2"); // yaw
 
         verticalClaw = hardwareMap.get(Servo.class, "vertical-claw");
         verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
@@ -94,7 +101,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
         // sorting entities into subsystems
         elevator = new Elevator(vertical1, vertical2);
         arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
-        claw = new Claw(horizontalClaw, horizontalClawRotator);
+        claw = new Claw(horizontalClaw, horizontalClawPitch, horizontalClawYaw, armRotator);
         claw2 = new Claw(verticalClaw, verticalClawRotator);
 
 
@@ -105,6 +112,14 @@ public class ChassisTestingTeleop extends LinearOpMode {
             // Moving robot based on gamepad 1's inputs
             // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
+            // claw yaw test
+            if (gamepad1.dpad_left) {
+                CURRENT_HORIZONTAL_CLAW_YAW = CURRENT_HORIZONTAL_CLAW_YAW - 0.05;
+            }
+            if (gamepad1.dpad_right) {
+                CURRENT_HORIZONTAL_CLAW_YAW = CURRENT_HORIZONTAL_CLAW_YAW + 0.05;
+            }
+
 
             // TODO: dpads not working rn, fix later
             if (gamepad2.dpad_right) {
@@ -129,18 +144,20 @@ public class ChassisTestingTeleop extends LinearOpMode {
                 horizontalClaw.setPosition(0.7);
             }
             if (gamepad2.left_bumper) {
-                ARM_DEGREES = ARM_STAGE1_DEG;
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_TRANSFER_POS_PITCH));
+                CURRENT_ARM_DEGREES = ARM_STAGE1_DEG;
+                Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_TRANSFER_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)));
                 // returnHorizontalToInitialPosition();
             }
             if (gamepad2.right_bumper) {
-                ARM_DEGREES = ARM_STAGE2_DEG;
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_AIM_POS_PITCH));
-                // returnHorizontalToPickupPosition();
+                CURRENT_ARM_DEGREES = ARM_STAGE2_DEG;
+                Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_AIM_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)));
             }
             if (gamepad2.right_trigger > 0.5) {
-                ARM_DEGREES = ARM_STAGE3_DEG;
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_PICKUP_POS_PITCH));
+                CURRENT_ARM_DEGREES = ARM_STAGE3_DEG;
+                CURRENT_CLAW_POSITION = HORIZONTAL_CLAW_CLOSE_POS;
+                Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)));
+                sleep(300);
+                Actions.runBlocking(claw.setClawPosition(CURRENT_CLAW_POSITION));
             }
             if (gamepad2.right_stick_x > 0.6) {
                 returnHorizontalToPickupPosition();
@@ -152,7 +169,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
                     new ParallelAction(
                             elevator.setMotorPowers(gamepad2.left_stick_y),
                             arm.setMotorPowers(gamepad2.right_stick_x),
-                            arm.setOrientation(ARM_DEGREES),
+                            arm.setOrientation(CURRENT_ARM_DEGREES),
+                            claw.setClawYaw(CURRENT_HORIZONTAL_CLAW_YAW),
                             claw2.setClawPosition(claw2Pos)
                     )
             );
@@ -165,15 +183,15 @@ public class ChassisTestingTeleop extends LinearOpMode {
     }
 
     public void returnHorizontalToInitialPosition() throws InterruptedException {
-        ARM_DEGREES = ARM_STAGE1_DEG;
+        CURRENT_ARM_DEGREES = ARM_STAGE1_DEG;
         Actions.runBlocking(claw.setClawPosition(0.49));
         Thread.sleep(250);
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.3)));
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(CURRENT_ARM_DEGREES), claw.setClawPitch(0.3)));
     }
 
     public void returnHorizontalToPickupPosition() {
-        ARM_DEGREES = ARM_STAGE3_DEG;
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
+        CURRENT_ARM_DEGREES = ARM_STAGE3_DEG;
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(CURRENT_ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
     }
 
     public void autoIntake() throws InterruptedException {
@@ -203,11 +221,11 @@ public class ChassisTestingTeleop extends LinearOpMode {
         leftStickX /= 1000;
         rightStickY /= 1000;
 
-        double horizontalPosition = (horizontalClawRotator.getPosition() + rightStickY);
+        double horizontalPosition = (horizontalClawPitch.getPosition() + rightStickY);
         if (horizontalPosition > 1 || horizontalPosition < 0) {
-            horizontalPosition = horizontalClawRotator.getPosition();
+            horizontalPosition = horizontalClawPitch.getPosition();
         }
-        horizontalClawRotator.setPosition(horizontalPosition);
+        horizontalClawPitch.setPosition(horizontalPosition);
         telemetry.addData("CLAW HORIZONTAL POSITION: ", horizontalPosition);
 
         // open and close claw position, uses RIGHT STICK LEFT AND RIGHT
