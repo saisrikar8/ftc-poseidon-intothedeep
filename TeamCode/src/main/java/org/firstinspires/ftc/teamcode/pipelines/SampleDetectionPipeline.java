@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.pipelines;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -23,44 +25,70 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
             return null; // Safeguard against undefined input Mat
         }
         Imgproc.cvtColor(input, grayed, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.GaussianBlur(grayed, blurred, new Size(5,5), 0);
-        double lowerThreshold = 50;
+        Imgproc.equalizeHist(grayed, grayed);
+        Imgproc.GaussianBlur(grayed, blurred, new Size(7,7), 0);
+
+
+        MatOfDouble mean = new MatOfDouble();
+        MatOfDouble stddev = new MatOfDouble();
+        Core.meanStdDev(grayed, mean, stddev);
+
+        double lowerThreshold = 30;
         double upperThreshold = 150;
 
         Imgproc.Canny(blurred, edges, lowerThreshold, upperThreshold);
         // Find contours from the binary edge image
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+        Imgproc.dilate(edges, edges, kernel);
+        kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+        Imgproc.erode(edges, edges, kernel);
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        // Process each contour
+        Point imageCenter = new Point(input.width() / 2, input.height() / 2);
+        double minDistance = Double.MAX_VALUE;
+        MatOfPoint minContour = null;
+        RotatedRect closestRect = null;
+
+        // Process each contour and find the closest minAreaRect
         for (MatOfPoint contour : contours) {
-            // Calculate the minimum area rectangle
-            if (Imgproc.contourArea(contour) > 450) { // Filter by minimum area
+            if (/*Imgproc.contourArea(contour) > 5000*/true) {
                 RotatedRect minRect = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
+                Point rectCenter = minRect.center;
+                double distance = Math.sqrt(Math.pow(rectCenter.x - imageCenter.x, 2) + Math.pow(rectCenter.y - imageCenter.y, 2));
 
-                // Get the angle and adjust if needed
-                double angle = minRect.angle;
-                if (minRect.size.width < minRect.size.height) {
-                    angle += 90;
+                boolean check1 = minRect.size.width > 200 && minRect.size.width < 300 || minRect.size.height > 550 && minRect.size.height < 650;
+                boolean check2 = minRect.size.height > 200 && minRect.size.height < 300 || minRect.size.width > 550 && minRect.size.width < 650;
+                if (distance < minDistance && (check1||check2) && minRect.size.height*minRect.size.width > 100000) {
+                    minDistance = distance;
+                    closestRect = minRect;
+                    minContour = contour;
                 }
-
-                // Get the points of the rectangle
-                Point[] points = new Point[4];
-                minRect.points(points);
-
-                // Draw the rectangle
-                for (int i = 0; i < 4; i++) {
-                    Imgproc.line(input, points[i], points[(i + 1) % 4], new Scalar(0, 255, 0), 2);
-                }
-
-                // Draw the angle text
-                Imgproc.putText(input, "Angle: " + angle, new Point(minRect.center.x - 50, minRect.center.y),
-                        Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
             }
         }
 
-        // Return the processed image with contours and rectangles drawn
+        // If we found the closest rectangle, draw it and display its angle
+        if (closestRect != null) {
+            Point[] points = new Point[4];
+            closestRect.points(points);
+
+            for (int i = 0; i < 4; i++) {
+                Imgproc.line(input, points[i], points[(i + 1) % 4], new Scalar(0, 255, 0), 2);
+            }
+
+            double angle = closestRect.angle;
+            if (closestRect.size.width < closestRect.size.height) {
+                angle += 90;
+            }
+
+            Imgproc.putText(input, "Angle: " + angle, new Point(closestRect.center.x - 50, closestRect.center.y),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
+            Imgproc.putText(input, "Width: " + closestRect.size.width, new Point(closestRect.center.x - 50, closestRect.center.y-50),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
+            Imgproc.putText(input, "Height: " + closestRect.size.height, new Point(closestRect.center.x - 50, closestRect.center.y-100),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 255, 0), 2);
+        }
         return input;
     }
 }
