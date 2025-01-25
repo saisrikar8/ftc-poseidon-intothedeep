@@ -23,10 +23,11 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.pipelines.CentermostBlockPipeline;
-import org.firstinspires.ftc.teamcode.pipelines.SampleDetectionPipeline;
+import org.firstinspires.ftc.teamcode.pipelines.ColorDetectionPipeline;
+import org.firstinspires.ftc.teamcode.pipelines.EdgeDetectionPipeline;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -41,6 +42,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class WebcamExample extends LinearOpMode
 {
     OpenCvWebcam webcam;
+    Servo yaw;
 
     @Override
     public void runOpMode()
@@ -57,6 +59,8 @@ public class WebcamExample extends LinearOpMode
          */
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        boolean colorPipeline = true;
+        yaw = hardwareMap.get(Servo.class, "horizontal-claw-rotator-2");
 
         // OR...  Do Not Activate the Camera Monitor View
         //webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"));
@@ -66,7 +70,7 @@ public class WebcamExample extends LinearOpMode
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        webcam.setPipeline(new SampleDetectionPipeline());
+        webcam.setPipeline(new ColorDetectionPipeline());
 
 
         /*
@@ -159,16 +163,26 @@ public class WebcamExample extends LinearOpMode
                  * time. Of course, this comment is irrelevant in light of the use case described in
                  * the above "important note".
                  */
-                webcam.stopStreaming();
-                //webcam.closeCameraDevice();
+                OpenCvPipeline pipeline;
+                if (colorPipeline){
+                    pipeline = new EdgeDetectionPipeline();
+                    colorPipeline = false;
+                }
+                else{
+                    pipeline = new ColorDetectionPipeline();
+                    colorPipeline = true;
+                }
+                webcam.setPipeline(pipeline);
+
             }
+            telemetry.addData("pipeline", (colorPipeline)?("ColorDetectionPipeline"):("SampleDetectionPipeline"));
 
             /*
              * For the purposes of this sample, throttle ourselves to 10Hz loop to avoid burning
              * excess CPU cycles for no reason. (By default, telemetry is only sent to the DS at 4Hz
              * anyway). Of course in a real OpMode you will likely not want to do this.
              */
-            sleep(100);
+            //sleep(100);
         }
     }
 

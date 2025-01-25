@@ -7,7 +7,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.*;
 
-public class SampleDetectionPipeline extends OpenCvPipeline {
+public class ColorDetectionPipeline extends OpenCvPipeline {
+    public double angle = 0;
+    public boolean angleFound = false;
     private Mat hsvImage = new Mat();
     private Mat maskYellow = new Mat();
     private Mat maskRed = new Mat();
@@ -60,25 +62,22 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         double minDistance = Double.MAX_VALUE;
 
         for (MatOfPoint contour : contours) {
-
-            if (Imgproc.contourArea(contour) > 5000 && Imgproc.contourArea(contour) < 200000) {
-
-
                 RotatedRect minRect = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
 
                 double distance = Math.sqrt(Math.pow(minRect.center.x - imageCenter.x, 2) +
                         Math.pow(minRect.center.y - imageCenter.y, 2));
+                boolean check1 = minRect.size.width > 200 && minRect.size.width < 300 || minRect.size.height > 550 && minRect.size.height < 650;
+                boolean check2 = minRect.size.height > 200 && minRect.size.height < 300 || minRect.size.width > 550 && minRect.size.width < 650;
 
-                if (distance < minDistance) {
+                if (distance < minDistance && minRect.size.height*minRect.size.width > 100000  && minRect.size.height*minRect.size.width < 200000) {
                     minDistance = distance;
                     closestRect = minRect;
                 }
-
-            }
         }
 
         if (closestRect != null) {
             Point[] points = new Point[4];
+            angle = closestRect.angle;
             closestRect.points(points);
 
             for (int i = 0; i < 4; i++) {
