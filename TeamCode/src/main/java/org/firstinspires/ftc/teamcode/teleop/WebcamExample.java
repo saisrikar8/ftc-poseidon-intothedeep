@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.pipelines.CentermostBlockPipeline;
 import org.firstinspires.ftc.teamcode.pipelines.SampleDetectionPipeline;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -66,6 +67,7 @@ public class WebcamExample extends LinearOpMode
          * (while a streaming session is in flight) *IS* supported.
          */
         webcam.setPipeline(new SampleDetectionPipeline());
+
 
         /*
          * Open the connection to the camera device. New in v1.4.0 is the ability
