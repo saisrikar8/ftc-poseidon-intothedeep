@@ -122,6 +122,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
                 if (claw1Yaw == Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)
                     claw1Yaw = Constants.HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW;
                 else claw1Yaw = Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+                Actions.runBlocking(claw.setClawYaw(claw1Yaw));
             }
             if (gamepad2.left_bumper) {
                 ARM_DEGREES = ARM_STAGE1_DEG;
