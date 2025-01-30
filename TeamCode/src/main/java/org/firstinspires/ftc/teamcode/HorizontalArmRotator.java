@@ -65,11 +65,9 @@ public class HorizontalArmRotator {
         );
     }
 
-    public Action setMotorPowers(double power) {
-        return new ParallelAction(
-                right.setMotorPower(power),
-                left.setMotorPower(power)
-        );
+    public void setMotorPowers(double power) {
+                right.motor.setPower(power);
+                left.motor.setPower(power);
     }
 
 }
