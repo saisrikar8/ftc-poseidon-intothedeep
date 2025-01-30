@@ -59,7 +59,7 @@ public class PickupTest extends LinearOpMode {
         horizontal2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         elevator = new Elevator(vertical1, vertical2);
-        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
+        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, null);
         claw = new Claw(horizontalClaw, horizontalClawRotator);
         claw2 = new Claw(verticalClaw, verticalClawRotator);
 

@@ -48,7 +48,7 @@ public class v2Neutral extends LinearOpMode {
         verticalClaw = hardwareMap.get(Servo.class, "vertical-claw");
         verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
 
-        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
+        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, null);
         claw = new Claw(horizontalClaw, horizontalClawRotator);
         claw2 = new Claw(verticalClaw, verticalClawRotator);
         elevator = new Elevator(vertical1, vertical2);

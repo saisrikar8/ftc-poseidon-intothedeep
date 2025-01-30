@@ -11,12 +11,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class HorizontalArmRotator {
     Slide left, right;
-    public Servo rotator;
+    public Servo rotator1, rotator2;
 
-    public HorizontalArmRotator(DcMotor l, DcMotor r, Servo rotatorServo) {
+    public HorizontalArmRotator(DcMotor l, DcMotor r, Servo rotatorServo, Servo rotatorServo2) {
         left = new Slide(l);
         right = new Slide(r);
-        rotator = rotatorServo;
+        rotator1 = rotatorServo;
+        rotator2 = rotatorServo2;
     }
 
     public class SetOrientation implements Action {
@@ -28,7 +29,8 @@ public class HorizontalArmRotator {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            rotator.setPosition(1 - orientation);
+            rotator1.setPosition(1 - orientation);
+            rotator2.setPosition(1 - orientation);
             return false;
         }
     }
@@ -65,9 +67,10 @@ public class HorizontalArmRotator {
         );
     }
 
+
     public void setMotorPowers(double power) {
-                right.motor.setPower(power);
-                left.motor.setPower(power);
+        right.motor.setPower(power);
+        left.motor.setPower(power);
     }
 
 }

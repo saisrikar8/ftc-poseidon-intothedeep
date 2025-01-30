@@ -18,7 +18,7 @@ public class v1ColorSide extends LinearOpMode {
     int ARM_DEGREES = 210; // initial arm degrees, will run IMMEDIATELY when the op mode start
     DcMotor frontLeft, frontRight, backLeft, backRight;
     DcMotor horizontal1, horizontal2;
-    Servo armRotator, horizontalClaw, horizontalClawRotator;
+    Servo armRotator, armRotator2, horizontalClaw, horizontalClawRotator;
     Claw claw;
     HorizontalArmRotator arm;
     MecanumDrive drive;
@@ -34,11 +34,12 @@ public class v1ColorSide extends LinearOpMode {
         horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
         horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
         armRotator = hardwareMap.get(Servo.class, "arm-rotator");
+        armRotator2 = hardwareMap.get(Servo.class, "arm-rotator-2");
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
         horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
 
-        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
+        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, armRotator2);
         claw = new Claw(horizontalClaw, horizontalClawRotator);
 
 

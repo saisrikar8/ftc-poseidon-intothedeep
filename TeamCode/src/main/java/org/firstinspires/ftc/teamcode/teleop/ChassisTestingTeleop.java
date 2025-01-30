@@ -4,8 +4,13 @@ import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE1_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE2_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE3_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_AIM_POS_PITCH;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_CLOSE_POS;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_OPEN_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
-import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_CLOSE_CLAWPOS;
+import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
+import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_RECEIVE_PITCH;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -18,6 +23,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Claw;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 
@@ -36,7 +42,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     Claw claw, claw2;
 
-    Servo armRotator;
+    Servo armRotator, armRotator2;
 
     Servo horizontalClaw, horizontalClawRotator;
 
@@ -44,44 +50,48 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetryPacket = new TelemetryPacket();
-    private double ARM_DEGREES = ARM_STAGE1_DEG;
-    private double claw2Pos = 1;
+    private double ARM_DEGREES = ARM_STAGE3_DEG;
+    private double claw2Pos = Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
+    private double claw2Pitch = Constants.VERTICAL_CLAW_RECEIVE_PITCH;
+    private double claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
+    private double claw1Yaw = Constants.HORIZONTAL_CLAW_IDLE_YAW;
+    private double claw1Pos = Constants.HORIZONTAL_CLAW_OPEN_POS;
 
     private double vertical1StartPos;
     private double vertical2StartPos;
-    private double verticalDegrees;
 
     public void runOpMode() throws InterruptedException {
-
-        //Fetching hardware entities from the robot config
+        {
+            //Fetching hardware entities from the robot config
 //        frontLeft = hardwareMap.get(DcMotor.class, "front-left");
 //        frontRight = hardwareMap.get(DcMotor.class, "front-right");
 //        backLeft = hardwareMap.get(DcMotor.class, "rear-left");
 //        backRight = hardwareMap.get(DcMotor.class, "rear-right");
 
-        vertical1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
-        vertical2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
+            vertical1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
+            vertical2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
 
-        horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
-        horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
-        armRotator = hardwareMap.get(Servo.class, "arm-rotator");
+            horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
+            horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
+            armRotator = hardwareMap.get(Servo.class, "arm-rotator");
+            armRotator2 = hardwareMap.get(Servo.class, "arm-rotator-2");
 
-        horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
-        horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
+            horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
+            horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
 
-        verticalClaw = hardwareMap.get(Servo.class, "vertical-claw");
-        verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
+            verticalClaw = hardwareMap.get(Servo.class, "vertical-claw");
+            verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
 
-        // Setting the entities' characteristics
-        vertical1StartPos = vertical1.getCurrentPosition();
-        vertical2StartPos = vertical2.getCurrentPosition();
+            // Setting the entities' characteristics
+            vertical1StartPos = vertical1.getCurrentPosition();
+            vertical2StartPos = vertical2.getCurrentPosition();
 
-        vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
+            // vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        vertical1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        vertical2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        horizontal1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        horizontal2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            vertical1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            vertical2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            horizontal1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            horizontal2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 //        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -90,72 +100,73 @@ public class ChassisTestingTeleop extends LinearOpMode {
 //
 //        frontRight.setDirection(DcMotor.Direction.REVERSE);
 //        backRight.setDirection(DcMotor.Direction.REVERSE);
-        //-227, -241
-        // sorting entities into subsystems
-        elevator = new Elevator(vertical1, vertical2);
-        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
-        claw = new Claw(horizontalClaw, horizontalClawRotator);
-        claw2 = new Claw(verticalClaw, verticalClawRotator);
-
+            //-227, -241
+            // sorting entities into subsystems
+            elevator = new Elevator(vertical1, vertical2);
+            arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, armRotator2);
+            claw = new Claw(horizontalClaw, horizontalClawRotator);
+            claw2 = new Claw(verticalClaw, verticalClawRotator);
+        }
 
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
             boolean verticalSlideLimitReached = false;
             // Moving robot based on gamepad 1's inputs
-            // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-            moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
+            moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            // moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
             // TODO: dpads not working rn, fix later
-            if (gamepad2.dpad_right) {
-                // up, transfer position
-                verticalClawRotator.setPosition(HORIZONTAL_CLAW_TRANSFER_POS_PITCH);
-            }
-            if (gamepad2.dpad_left) {
-                // down, pickup position
-                verticalClawRotator.setPosition(HORIZONTAL_CLAW_PICKUP_POS_PITCH);
-            }
 
-            if (gamepad2.x) {
-                claw2Pos = 0.7;
-            }
-            if (gamepad2.b) {
-                claw2Pos = 0.9;
-            }
-            if (gamepad2.a) {
-                horizontalClaw.setPosition(0.53);
-            }
-            if (gamepad2.y) {
-                horizontalClaw.setPosition(0.7);
+            if (gamepad2.dpad_left || gamepad2.dpad_right) {
+                if (claw1Yaw == Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)
+                    claw1Yaw = Constants.HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW;
+                else claw1Yaw = Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
             }
             if (gamepad2.left_bumper) {
                 ARM_DEGREES = ARM_STAGE1_DEG;
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_TRANSFER_POS_PITCH));
-                // returnHorizontalToInitialPosition();
+                claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
+                claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
+                claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
             }
             if (gamepad2.right_bumper) {
                 ARM_DEGREES = ARM_STAGE2_DEG;
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_AIM_POS_PITCH));
-                // returnHorizontalToPickupPosition();
+                claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
+                claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
+                claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
             }
             if (gamepad2.right_trigger > 0.5) {
                 ARM_DEGREES = ARM_STAGE3_DEG;
-                Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_PICKUP_POS_PITCH));
+                claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
+                claw1Pitch = HORIZONTAL_CLAW_PICKUP_POS_PITCH;
+                Thread.sleep(500);
+                claw2Pos = VERTICAL_CLAW_CLOSE_CLAWPOS;
+            }
+            if (gamepad2.left_trigger > 0.5) {
+                ARM_DEGREES = ARM_STAGE1_DEG;
+                claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
+                claw1Pitch = HORIZONTAL_CLAW_PICKUP_POS_PITCH;
+                claw1Yaw = HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+                claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+                claw2Pitch = VERTICAL_CLAW_RECEIVE_PITCH;
             }
             if (gamepad2.right_stick_x > 0.6) {
                 returnHorizontalToPickupPosition();
             }
-            // verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x / 100);
 
             // running
-            /*Actions.runBlocking(
+            arm.setMotorPowers(gamepad2.right_stick_x);
+            elevator.setMotorPowers(gamepad2.left_stick_y);
+            Actions.runBlocking(
                     new ParallelAction(
-                            elevator.setMotorPowers(gamepad2.left_stick_y),
-                            arm.setMotorPowers(gamepad2.right_stick_x),
                             arm.setOrientation(ARM_DEGREES),
+                            claw.setClawYaw(claw1Yaw),
+                            claw.setClawPosition(claw1Pos),
+                            claw.setClawPitch(claw1Pitch),
+                            claw2.setClawPitch(claw2Pitch),
                             claw2.setClawPosition(claw2Pos)
                     )
-            );*/
+            );
             telemetry.addData("vertical rotator", verticalClawRotator.getPosition());
             telemetry.addData("vertical slide 1 pos: ", vertical1.getCurrentPosition());
             telemetry.addData("vertical slide 2 pos: ", vertical2.getCurrentPosition());

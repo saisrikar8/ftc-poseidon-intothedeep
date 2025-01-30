@@ -52,7 +52,7 @@ public class TestAutoMain extends LinearOpMode {
         verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
 
         elevator = new Elevator(vertical1, vertical2);
-        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator);
+        arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, null);
         claw = new Claw(horizontalClaw, horizontalClawRotator);
         claw2 = new Claw(verticalClaw, null);
 
