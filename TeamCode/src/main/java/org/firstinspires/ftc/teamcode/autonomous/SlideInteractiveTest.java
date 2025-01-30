@@ -64,8 +64,8 @@ public class SlideInteractiveTest extends LinearOpMode {
                 selectedAction2 = slide2.moveToPosition(10);
             } else {
                 // default action, move slide by using gamepads
-                selectedAction1 = slide1.setMotorPower((motor1.getCurrentPosition() < slide1.startingPosition) ? ((motor1.getCurrentPosition() > MAX_SLIDE_EXTENSION + slide1.startingPosition) ? (gamepad1.right_stick_y) : (Math.max(gamepad1.right_stick_y, 0))) : (Math.min(0, gamepad1.right_stick_y)));
-                selectedAction2 = slide2.setMotorPower((motor2.getCurrentPosition() < slide2.startingPosition) ? ((motor2.getCurrentPosition() > MAX_SLIDE_EXTENSION + slide2.startingPosition) ? (gamepad1.right_stick_y) : (Math.max(gamepad1.right_stick_y, 0))) : (Math.min(0, gamepad1.right_stick_y)));
+                slide1.motor.setPower((motor1.getCurrentPosition() < slide1.startingPosition) ? ((motor1.getCurrentPosition() > MAX_SLIDE_EXTENSION + slide1.startingPosition) ? (gamepad1.right_stick_y) : (Math.max(gamepad1.right_stick_y, 0))) : (Math.min(0, gamepad1.right_stick_y)));
+                slide2.motor.setPower((motor2.getCurrentPosition() < slide2.startingPosition) ? ((motor2.getCurrentPosition() > MAX_SLIDE_EXTENSION + slide2.startingPosition) ? (gamepad1.right_stick_y) : (Math.max(gamepad1.right_stick_y, 0))) : (Math.min(0, gamepad1.right_stick_y)));
                 if (motor1.getPower() == 0 && motor2.getPower() == 0) {
                     selectedAction1 = slide1.stayAtRest(gamepad1);
                     selectedAction2 = slide2.stayAtRest(gamepad1);

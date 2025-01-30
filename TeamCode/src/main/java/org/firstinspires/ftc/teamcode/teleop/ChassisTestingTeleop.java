@@ -148,14 +148,14 @@ public class ChassisTestingTeleop extends LinearOpMode {
             // verticalClawRotator.setPosition(verticalClawRotator.getPosition() + gamepad1.left_stick_x / 100);
 
             // running
-            Actions.runBlocking(
+            /*Actions.runBlocking(
                     new ParallelAction(
                             elevator.setMotorPowers(gamepad2.left_stick_y),
                             arm.setMotorPowers(gamepad2.right_stick_x),
                             arm.setOrientation(ARM_DEGREES),
                             claw2.setClawPosition(claw2Pos)
                     )
-            );
+            );*/
             telemetry.addData("vertical rotator", verticalClawRotator.getPosition());
             telemetry.addData("vertical slide 1 pos: ", vertical1.getCurrentPosition());
             telemetry.addData("vertical slide 2 pos: ", vertical2.getCurrentPosition());

@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.openftc.easyopencv.OpenCvCamera;
 
 import java.util.Locale;
 
@@ -17,8 +18,8 @@ import java.util.Locale;
 public class CameraTestTeleop extends LinearOpMode {
     final boolean USING_WEBCAM = true;
     final BuiltinCameraDirection INTERNAL_CAM_DIR = BuiltinCameraDirection.BACK;
-    final int RESOLUTION_WIDTH = 640;
-    final int RESOLUTION_HEIGHT = 480;
+    final int RESOLUTION_WIDTH = 1280;
+    final int RESOLUTION_HEIGHT = 720;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket telemetry = new TelemetryPacket();
 
@@ -37,9 +38,7 @@ public class CameraTestTeleop extends LinearOpMode {
 
         if (USING_WEBCAM) {
             portal = new VisionPortal.Builder()
-                    .addProcessor(tagProcessor)
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .setCameraResolution(new Size(RESOLUTION_WIDTH, RESOLUTION_HEIGHT))
+                    .setCamera(BuiltinCameraDirection.BACK)
                     .build();
         } else {
             portal = new VisionPortal.Builder()

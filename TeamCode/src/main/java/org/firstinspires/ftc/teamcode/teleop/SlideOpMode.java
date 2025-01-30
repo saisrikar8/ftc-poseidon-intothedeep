@@ -28,7 +28,7 @@ public class SlideOpMode extends LinearOpMode {
         DcMotor motor1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
         DcMotor motor2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        //motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Slide slide1 = new Slide(motor1);

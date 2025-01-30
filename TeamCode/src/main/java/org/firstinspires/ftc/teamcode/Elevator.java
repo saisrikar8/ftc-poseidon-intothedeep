@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import android.app.Notification;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -46,9 +48,9 @@ public class Elevator {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            int currentPosition = left.getCurrentPosition();
-            left.setMotorPower(0.2);
-            right.setMotorPower(0.2);
+            int currentPosition = left.motor.getCurrentPosition();
+            left.motor.setPower(0.2);
+            right.motor.setPower(0.2);
             // stop when current position is within upper and lower bound
             return (targetPos - 100 < currentPosition && currentPosition < targetPos + 100);
         }
@@ -75,11 +77,9 @@ public class Elevator {
         );
     }
 
-    public Action setMotorPowers(double power) {
-        return new ParallelAction(
-                right.setMotorPower(power),
-                left.setMotorPower(power)
-        );
+    public void setMotorPowers(double power) {
+                right.motor.setPower(power);
+                left.motor.setPower(power);
     }
 
     public Action motorsStayAtRest(Gamepad gamepad) {
