@@ -10,22 +10,21 @@ public class Constants {
 
     public static final int MAX_TWO_STAGE_EXTENSION = -1990;
 
+    public static final double VERTICAL_CLAW_TRANSFER_PITCH = 0.2828;
+    public static final double VERTICAL_CLAW_IDLE_PITCH = 0.9567;
 
-    public static final double HORIZONTAL_CLAW_CLOSE_POS = 0.7594;
-    public static final double HORIZONTAL_CLAW_OPEN_POS = 0.4717;
-    public static final double HORIZONTAL_CLAW_AIM_POS_PITCH = 0.78; // claw points down for aiming
+    public static final double HORIZONTAL_CLAW_CLOSE_POS = 0.8228;
+    public static final double HORIZONTAL_CLAW_OPEN_POS = 0.5689;
+    public static final double HORIZONTAL_CLAW_AIM_POS_PITCH = 0.7139; // claw points down for aiming
 
-    public static final double HORIZONTAL_CLAW_PICKUP_POS_PITCH = 0.5544; // claw aims to down
-    public static final double HORIZONTAL_CLAW_TRANSFER_POS_PITCH = 0.001; // for for transfer
+    public static final double HORIZONTAL_CLAW_PICKUP_POS_PITCH = 0.5494; // claw aims to down
+    public static final double HORIZONTAL_CLAW_TRANSFER_POS_PITCH = 0; // for for transfer
     public static final double HORIZONTAL_CLAW_IDLE_YAW = 0.1833;
     public static final double HORIZONTAL_CLAW_VERTICALSAMPLE_YAW = HORIZONTAL_CLAW_IDLE_YAW;
     public static final double HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW = 0.4956;
 
     public static final double VERTICAL_CLAW_OPEN_CLAWPOS = 0;
-    public static final double VERTICAL_CLAW_CLOSE_CLAWPOS = 0;
-    public static final double VERTICAL_CLAW_RECEIVE_PITCH = 0;
-    public static final double VERTICAL_CLAW_DROP_PITCH = 0;
-
+    public static final double VERTICAL_CLAW_CLOSE_CLAWPOS = 0.0167;
     public static final double ARM_STAGE1_DEG = 130; // transfer
     public static final double ARM_STAGE2_DEG = 200; // aiming
     public static final double ARM_STAGE3_DEG = 235; // pickup
