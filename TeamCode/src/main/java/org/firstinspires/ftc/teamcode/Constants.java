@@ -10,8 +10,8 @@ public class Constants {
 
     public static final int MAX_TWO_STAGE_EXTENSION = -1990;
 
-    public static final double VERTICAL_CLAW_TRANSFER_PITCH = 0.2828;
-    public static final double VERTICAL_CLAW_IDLE_PITCH = 0.9567;
+    public static final double VERTICAL_CLAW_TRANSFER_PITCH = 0.3317;
+    public static final double VERTICAL_CLAW_DROP_PITCH = 0.9767;
 
     public static final double HORIZONTAL_CLAW_CLOSE_POS = 0.8228;
     public static final double HORIZONTAL_CLAW_OPEN_POS = 0.5689;
@@ -19,9 +19,9 @@ public class Constants {
 
     public static final double HORIZONTAL_CLAW_PICKUP_POS_PITCH = 0.5494; // claw aims to down
     public static final double HORIZONTAL_CLAW_TRANSFER_POS_PITCH = 0; // for for transfer
-    public static final double HORIZONTAL_CLAW_IDLE_YAW = 0.1833;
+    public static final double HORIZONTAL_CLAW_IDLE_YAW = 0.4456;
     public static final double HORIZONTAL_CLAW_VERTICALSAMPLE_YAW = HORIZONTAL_CLAW_IDLE_YAW;
-    public static final double HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW = 0.4956;
+    public static final double HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW = 0.7539;
 
     public static final double VERTICAL_CLAW_OPEN_CLAWPOS = 0;
     public static final double VERTICAL_CLAW_CLOSE_CLAWPOS = 0.0167;

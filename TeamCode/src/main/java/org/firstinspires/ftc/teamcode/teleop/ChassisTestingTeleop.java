@@ -9,8 +9,8 @@ import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_OPEN_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_CLOSE_CLAWPOS;
+import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_DROP_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
-import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_RECEIVE_PITCH;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -19,7 +19,6 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Claw;
@@ -52,7 +51,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
     TelemetryPacket telemetryPacket = new TelemetryPacket();
     private double ARM_DEGREES = ARM_STAGE3_DEG;
     private double claw2Pos = Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
-    private double claw2Pitch = Constants.VERTICAL_CLAW_RECEIVE_PITCH;
+    private double claw2Pitch = Constants.VERTICAL_CLAW_DROP_PITCH;
     private double claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
     private double claw1Yaw = Constants.HORIZONTAL_CLAW_IDLE_YAW;
     private double claw1Pos = Constants.HORIZONTAL_CLAW_OPEN_POS;
@@ -118,7 +117,6 @@ public class ChassisTestingTeleop extends LinearOpMode {
             //moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             // moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
-            // TODO: dpads not working rn, fix later
 
             if ((gamepad2.dpad_left || gamepad2.dpad_right) && claw1TicksToNextOperation > 100) {
                 if (claw1Yaw == Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)
@@ -147,21 +145,23 @@ public class ChassisTestingTeleop extends LinearOpMode {
                 claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
                 claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
                 claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+                claw1Yaw = HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
             }
             if (gamepad2.right_trigger > 0.5) {
                 ARM_DEGREES = ARM_STAGE3_DEG;
-                claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
+                claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
                 claw1Pitch = HORIZONTAL_CLAW_PICKUP_POS_PITCH;
-                Thread.sleep(500);
                 claw2Pos = VERTICAL_CLAW_CLOSE_CLAWPOS;
             }
             if (gamepad2.left_trigger > 0.5) {
+                claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
+                Actions.runBlocking(claw.setClawPosition(claw1Pos));
                 ARM_DEGREES = ARM_STAGE1_DEG;
                 claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
                 claw1Pitch = HORIZONTAL_CLAW_PICKUP_POS_PITCH;
                 claw1Yaw = HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
                 claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
-                claw2Pitch = VERTICAL_CLAW_RECEIVE_PITCH;
+                claw2Pitch = VERTICAL_CLAW_DROP_PITCH;
             }
             if (gamepad2.right_stick_x > 0.6) {
                 returnHorizontalToPickupPosition();

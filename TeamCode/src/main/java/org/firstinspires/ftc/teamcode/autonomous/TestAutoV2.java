@@ -4,11 +4,13 @@ import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE2_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_AIM_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_OPEN_POS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
+import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_TRANSFER_PITCH;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -18,10 +20,11 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-public class TestAutoV1 extends LinearOpMode {
+@Autonomous(name="Test Auto v2")
+public class TestAutoV2 extends LinearOpMode {
     double ARM_DEGREES = Constants.ARM_STAGE2_DEG;
     private double claw2Pos = Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
-    private double claw2Pitch = Constants.VERTICAL_CLAW_RECEIVE_PITCH;
+    private double claw2Pitch = Constants.VERTICAL_CLAW_DROP_PITCH;
     private double claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
     private double claw1Yaw = Constants.HORIZONTAL_CLAW_IDLE_YAW;
     private double claw1Pos = Constants.HORIZONTAL_CLAW_OPEN_POS;
@@ -65,6 +68,8 @@ public class TestAutoV1 extends LinearOpMode {
         claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
         claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
         claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+        claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
+
 
         currentPose = new Pose2d(-16, -60, Math.toRadians(90));
         drive = new MecanumDrive(hardwareMap, currentPose);
@@ -73,6 +78,7 @@ public class TestAutoV1 extends LinearOpMode {
         Actions.runBlocking(arm.setOrientation(ARM_DEGREES));
         Actions.runBlocking(claw.setClawPosition(claw1Pos));
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
+        Actions.runBlocking(claw2.setClawPitch(claw2Pitch));
 
         waitForStart();
         // goes to left most sample
