@@ -7,7 +7,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Claw {
-    public Servo claw, clawPitch, armRotator, clawYaw;
+    public Servo claw, clawPitch, clawYaw;
 
     public Claw(Servo clawServo, Servo clawRotater) {
         claw = clawServo;
@@ -23,8 +23,8 @@ public class Claw {
     public class SetOrientation implements Action {
         private double orientation;
 
-        public SetOrientation(double degrees) {
-            orientation = degrees / 360;
+        public SetOrientation(double pos) {
+            orientation = pos;
         }
 
         @Override
@@ -76,21 +76,6 @@ public class Claw {
         }
     }
 
-    public class SetArmRotatorPosition implements Action {
-        private double position;
-
-        public SetArmRotatorPosition(double degrees) {
-            double orientation = (degrees / 300);
-            this.position = 1 - orientation;
-        }
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            armRotator.setPosition(position);
-            return false;
-        }
-    }
-
     public Action setOrientation(double degrees) {
         return new SetOrientation(degrees);
     }
@@ -105,9 +90,5 @@ public class Claw {
 
     public Action setClawYaw(double position) {
         return new SetClawYaw(position);
-    }
-
-    public Action setArmRotatorOrientation(double position) {
-        return new SetArmRotatorPosition(position);
     }
 }
