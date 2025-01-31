@@ -22,6 +22,8 @@ public class EdgeDetectionPipeline extends OpenCvPipeline {
     private Mat grayed = new Mat();
     private Mat blurred = new Mat();
     private Mat edges = new Mat();
+    public boolean sampleDetected = false;
+    public RotatedRect boundingBox = null;
     public double angle = 0;
     @Override
     public Mat processFrame(Mat input) {
@@ -66,9 +68,14 @@ public class EdgeDetectionPipeline extends OpenCvPipeline {
                 minContour = contour;
             }
         }
+        if (closestRect == null) {
+            sampleDetected = false;
+        }
 
         // If we found the closest rectangle, draw it and display its angle
         if (closestRect != null) {
+            sampleDetected = true;
+            boundingBox = closestRect;
             Point[] points = new Point[4];
             angle = closestRect.angle;
             closestRect.points(points);

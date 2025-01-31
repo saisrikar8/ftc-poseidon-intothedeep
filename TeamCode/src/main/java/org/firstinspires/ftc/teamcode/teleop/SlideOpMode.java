@@ -39,6 +39,7 @@ public class SlideOpMode extends LinearOpMode {
         motor3.setDirection(DcMotorSimple.Direction.REVERSE);
         motor4.setDirection(DcMotorSimple.Direction.REVERSE);
         Elevator elevator = new Elevator(motor1, motor2);
+
         HorizontalArmRotator arm = new HorizontalArmRotator(motor3, motor4);
         dashboard.sendTelemetryPacket(telemetryPacket);
         waitForStart();
