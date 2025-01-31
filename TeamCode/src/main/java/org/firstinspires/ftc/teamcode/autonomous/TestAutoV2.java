@@ -9,17 +9,16 @@ import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_IDLE_YAW;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_OPEN_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
-import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_CLOSE_CLAWPOS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_DROP_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_TRANSFER_PITCH;
 
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -28,7 +27,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -36,6 +34,7 @@ import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.pipelines.EdgeDetectionPipeline;
+import org.opencv.core.RotatedRect;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -149,13 +148,11 @@ public class TestAutoV2 extends LinearOpMode {
             });
         }
 
-
         // initialize stage 2
         Actions.runBlocking(arm.setOrientation(ARM_DEGREES));
         Actions.runBlocking(claw.setClawPosition(claw1Pos));
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
         Actions.runBlocking(claw2.setClawPitch(claw2Pitch));
-
 
         waitForStart();
 
@@ -181,7 +178,7 @@ public class TestAutoV2 extends LinearOpMode {
 
 
 
-        // goes to left most sample
+        // go to right most sample
         TrajectoryActionBuilder traj1 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-33, -36), Math.toRadians(90));
         Actions.runBlocking(traj1.build());
         telemetry.addData("Sample detected: ", edgeDetection.sampleDetected);
@@ -191,17 +188,58 @@ public class TestAutoV2 extends LinearOpMode {
             telemetry.addData("sample location width: ", edgeDetection.boundingBox.size.width);
             telemetry.addData("sample location height: ", edgeDetection.boundingBox.size.height);
         }
+        // grab it
         Actions.runBlocking(claw.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH));
         sleep(1500);
         Actions.runBlocking(arm.setOrientation(ARM_STAGE3_DEG));
         sleep(1500);
         Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_CLOSE_POS));
 
+        // transfer it up to vertical claw (USE TRANSFER FROM BEFORE)
+
+        // go to middle sample
+
+
+
+
 
         telemetry.update();
         while (opModeIsActive() && !isStopRequested()) {
             sleep(1000);
         }
-
+    }
+    public void cameraProcess() {
+        int TICKS_TILL_TERMINATE = 1000;
+        RotatedRect foundBoundingBox = edgeDetection.boundingBox;
+        double sample_area = foundBoundingBox.size.width * foundBoundingBox.size.height;
+        TrajectoryActionBuilder traj = null;
+        telemetry.addData("sample area: ", sample_area);
+        // TODO: calibrate ALL numbers
+        // test size, if smaller, means not whole box is in view
+        while (sample_area < 200) {
+            int POS_DISPLACEMENT_AMOUNT = 3;
+            // whole sample not detected, fix it
+            // is the coordinates on the right or left?
+            // too on the left, move right a bit
+            if (foundBoundingBox.center.x < 100) {
+                // wont work
+                traj = drive.actionBuilder(currentPose).lineToX(currentPose.position.x + POS_DISPLACEMENT_AMOUNT);
+            }
+            // too on the right
+            if (foundBoundingBox.center.x > 1000) {
+                currentPose = new Pose2d(new Vector2d(currentPose.position.x - POS_DISPLACEMENT_AMOUNT, currentPose.position.y), currentPose.heading);
+            }
+            // too on the top
+            if (foundBoundingBox.center.y > 1000) {
+                currentPose = new Pose2d(new Vector2d(currentPose.position.x, currentPose.position.y - POS_DISPLACEMENT_AMOUNT), currentPose.heading);
+            }
+            // too on the bottom
+            if (foundBoundingBox.center.y < 100) {
+                currentPose = new Pose2d(new Vector2d(currentPose.position.x, currentPose.position.y + POS_DISPLACEMENT_AMOUNT), currentPose.heading);
+            }
+            if (traj != null) Actions.runBlocking(traj.build());
+            sleep(5000); // SLOW LOOP FOR DEBUG
+            sample_area = foundBoundingBox.size.width * foundBoundingBox.size.height;
+        }
     }
 }
