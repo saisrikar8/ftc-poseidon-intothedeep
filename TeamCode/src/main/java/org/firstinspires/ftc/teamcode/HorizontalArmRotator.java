@@ -19,6 +19,10 @@ public class HorizontalArmRotator {
         rotator1 = rotatorServo;
         rotator2 = rotatorServo2;
     }
+    public HorizontalArmRotator(DcMotor l, DcMotor r) {
+        left = new Slide(l);
+        right = new Slide(r);
+    }
 
     public class SetOrientation implements Action {
         private final double orientation;
@@ -68,9 +72,11 @@ public class HorizontalArmRotator {
     }
 
 
-    public void setMotorPowers(double power) {
-        right.motor.setPower(power);
-        left.motor.setPower(power);
+    public Action setMotorPowers(double power) {
+        return new ParallelAction(
+                right.setMotorPower(power),
+                left.setMotorPower(power)
+        );
     }
 
 }

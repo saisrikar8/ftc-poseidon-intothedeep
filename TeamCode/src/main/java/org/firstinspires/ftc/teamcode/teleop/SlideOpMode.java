@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.Elevator;
+import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.Slide;
 
 import java.util.ArrayList;
@@ -27,12 +29,14 @@ public class SlideOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         DcMotor motor1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
         DcMotor motor2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
+        DcMotor motor3 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
+        DcMotor motor4 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        //motor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Slide slide1 = new Slide(motor1);
-        Slide slide2 = new Slide(motor2);
+        Elevator elevator = new Elevator(motor1, motor2);
+        HorizontalArmRotator arm = new HorizontalArmRotator(motor3, motor4);
         dashboard.sendTelemetryPacket(telemetryPacket);
         waitForStart();
         dashboard.sendTelemetryPacket(telemetryPacket);
@@ -45,25 +49,24 @@ public class SlideOpMode extends LinearOpMode {
             telemetry.addData("motor2 power", motor2.getPower());
             telemetry.update();
 
-            Action selectedAction1 = null;
-            Action selectedAction2 = null;
+            Action selectedAction;
             if (gamepad1.a) {
-                selectedAction1 = slide1.moveToHighestPos();
-                selectedAction2 = slide2.moveToHighestPos();
+                selectedAction = elevator.moveToHighestPosition();
             }
             else if (gamepad1.b) {
-                selectedAction1 = slide1.moveToLowestPos();
-                selectedAction2 = slide2.moveToLowestPos();
+                selectedAction = elevator.moveToLowestPosition();
             }
             else if (gamepad1.x) {
-                selectedAction1 = slide1.moveToPosition(10);
-                selectedAction2 = slide2.moveToPosition(10);
+                selectedAction = elevator.moveToPosition(10);
             }
-            if (selectedAction1 != null){
+            else {
+                selectedAction = elevator.setMotorPowers(gamepad1.left_stick_y);
+            }
+            if (selectedAction != null){
                 Actions.runBlocking(
                         new ParallelAction(
-                                selectedAction1,
-                                selectedAction2
+                            selectedAction,
+                            arm.setMotorPowers(gamepad1.right_stick_x)
                         )
                 );
             }

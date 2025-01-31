@@ -14,11 +14,10 @@ public class Claw {
         clawPitch = clawRotater;
     }
 
-    public Claw(Servo claw, Servo clawPitch, Servo clawYaw, Servo armRotator) {
+    public Claw(Servo claw, Servo clawPitch, Servo clawYaw) {
         this.claw = claw;
         this.clawPitch = clawPitch;
         this.clawYaw = clawYaw;
-        this.armRotator = armRotator;
     }
 
     public class SetOrientation implements Action {

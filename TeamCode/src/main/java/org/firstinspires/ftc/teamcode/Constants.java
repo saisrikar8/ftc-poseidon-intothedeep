@@ -8,6 +8,8 @@ public class Constants {
     public static final double SLIDE_TICKS_PER_INCH = 113.64;
     public static final int MAX_SLIDE_EXTENSION = -3894;
 
+    public static final int MAX_TWO_STAGE_EXTENSION = -1990;
+
 
     public static final double HORIZONTAL_CLAW_CLOSE_POS = 0.7594;
     public static final double HORIZONTAL_CLAW_OPEN_POS = 0.4717;

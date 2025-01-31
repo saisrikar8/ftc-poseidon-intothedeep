@@ -44,7 +44,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     Servo armRotator, armRotator2;
 
-    Servo horizontalClaw, horizontalClawRotator;
+    Servo horizontalClaw, horizontalClawPitch, horizontalClawYaw;
 
     Servo verticalClaw, verticalClawRotator;
 
@@ -77,7 +77,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
             armRotator2 = hardwareMap.get(Servo.class, "arm-rotator-2");
 
             horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
-            horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
+            horizontalClawPitch = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
+            horizontalClawYaw = hardwareMap.get(Servo.class, "horizontal-claw-rotator-2");
 
             verticalClaw = hardwareMap.get(Servo.class, "vertical-claw");
             verticalClawRotator = hardwareMap.get(Servo.class, "vertical-claw-rotator");
@@ -104,7 +105,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
             // sorting entities into subsystems
             elevator = new Elevator(vertical1, vertical2);
             arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, armRotator2);
-            claw = new Claw(horizontalClaw, horizontalClawRotator);
+            claw = new Claw(horizontalClaw, horizontalClawPitch, horizontalClawYaw);
             claw2 = new Claw(verticalClaw, verticalClawRotator);
         }
 
@@ -113,7 +114,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             boolean verticalSlideLimitReached = false;
             // Moving robot based on gamepad 1's inputs
-            moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            //moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             // moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
             // TODO: dpads not working rn, fix later
@@ -214,11 +215,11 @@ public class ChassisTestingTeleop extends LinearOpMode {
         leftStickX /= 1000;
         rightStickY /= 1000;
 
-        double horizontalPosition = (horizontalClawRotator.getPosition() + rightStickY);
+        double horizontalPosition = (horizontalClawPitch.getPosition() + rightStickY);
         if (horizontalPosition > 1 || horizontalPosition < 0) {
-            horizontalPosition = horizontalClawRotator.getPosition();
+            horizontalPosition = horizontalClawPitch.getPosition();
         }
-        horizontalClawRotator.setPosition(horizontalPosition);
+        horizontalClawPitch.setPosition(horizontalPosition);
         telemetry.addData("CLAW HORIZONTAL POSITION: ", horizontalPosition);
 
         // open and close claw position, uses RIGHT STICK LEFT AND RIGHT
