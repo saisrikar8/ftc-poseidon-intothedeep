@@ -32,9 +32,12 @@ public class SlideOpMode extends LinearOpMode {
         DcMotor motor3 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
         DcMotor motor4 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor3.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor4.setDirection(DcMotorSimple.Direction.REVERSE);
         Elevator elevator = new Elevator(motor1, motor2);
         HorizontalArmRotator arm = new HorizontalArmRotator(motor3, motor4);
         dashboard.sendTelemetryPacket(telemetryPacket);
