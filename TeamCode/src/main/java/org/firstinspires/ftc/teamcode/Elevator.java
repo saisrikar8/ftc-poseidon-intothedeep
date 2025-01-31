@@ -48,7 +48,7 @@ public class Elevator {
     public Action setMotorPowers(double rPower){
         return new ParallelAction(
           right.setMotorPower(rPower),
-          left.setMotorPower(0.9*rPower)
+          left.setMotorPower(0.83*rPower)
         );
     }
 }

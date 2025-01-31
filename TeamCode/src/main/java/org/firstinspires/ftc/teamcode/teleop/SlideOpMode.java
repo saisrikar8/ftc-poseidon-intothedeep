@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,6 +14,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.Claw;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.Slide;
@@ -75,5 +78,16 @@ public class SlideOpMode extends LinearOpMode {
                 );
             }
         }
+    }
+    public Action autoIntake(HorizontalArmRotator arm, Elevator elevator, Claw vertical, Claw horizontal){
+        return new SequentialAction(
+                new ParallelAction(
+                    arm.moveToHighestPosition(),
+                        horizontal.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH),
+                        arm.setOrientation(ARM_STAGE3_DEG),
+                        horizontal.setClawYaw(HORIZONTAL_CLAW_IDLE_YAW),
+                        horizontal.setClawPosition(HORIZONTAL_CLAW_OPEN_POS)
+                )
+        );
     }
 }

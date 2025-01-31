@@ -23,7 +23,7 @@ public class Constants {
     public static final double HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW = 0.7539;
 
     public static final double VERTICAL_CLAW_OPEN_CLAWPOS = 0;
-    public static final double VERTICAL_CLAW_CLOSE_CLAWPOS = 0.1467;
+    public static final double VERTICAL_CLAW_CLOSE_CLAWPOS = 0.1867;
     public static final double ARM_STAGE1_DEG = 127; // transfer
     public static final double ARM_STAGE2_DEG = 205; // aiming
     public static final double ARM_STAGE3_DEG = 234; // pickup
