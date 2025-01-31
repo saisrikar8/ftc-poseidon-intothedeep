@@ -56,7 +56,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
     private double claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
     private double claw1Yaw = Constants.HORIZONTAL_CLAW_IDLE_YAW;
     private double claw1Pos = Constants.HORIZONTAL_CLAW_OPEN_POS;
-
+    private double claw2TicksToNextOperation = 0;
+    private double claw1TicksToNextOperation = 0;
     private double vertical1StartPos;
     private double vertical2StartPos;
 
@@ -119,11 +120,21 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
             // TODO: dpads not working rn, fix later
 
-            if (gamepad2.dpad_left || gamepad2.dpad_right) {
+            if ((gamepad2.dpad_left || gamepad2.dpad_right) && claw1TicksToNextOperation > 100) {
                 if (claw1Yaw == Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)
                     claw1Yaw = Constants.HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW;
                 else claw1Yaw = Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
-                Actions.runBlocking(claw.setClawYaw(claw1Yaw));
+                claw1TicksToNextOperation = 0;
+            }
+            if (gamepad2.dpad_up && claw2TicksToNextOperation > 500) {
+                claw2TicksToNextOperation = 0;
+                // claw2Pitch = claw2Pitch + 0.05;
+                Actions.runBlocking(claw2.setClawPitch(0.5));
+                Actions.runBlocking(claw2.setClawPosition(0.5));
+            }
+            if (gamepad2.dpad_down && claw2TicksToNextOperation > 500) {
+                claw2TicksToNextOperation = 0;
+                claw2Pitch = claw2Pitch - 0.05;
             }
             if (gamepad2.left_bumper) {
                 ARM_DEGREES = ARM_STAGE1_DEG;
@@ -169,10 +180,17 @@ public class ChassisTestingTeleop extends LinearOpMode {
                             claw2.setClawPosition(claw2Pos)
                     )
             );
+
+            claw2TicksToNextOperation++;
+            claw1TicksToNextOperation++;
+
             telemetry.addData("vertical rotator", verticalClawRotator.getPosition());
             telemetry.addData("vertical slide 1 pos: ", vertical1.getCurrentPosition());
             telemetry.addData("vertical slide 2 pos: ", vertical2.getCurrentPosition());
             telemetry.addData("vertical claw pos: ", claw2Pos);
+            telemetry.addData("vertical claw pitch: ", claw2Pitch);
+            telemetry.addData("claw 1 ticks: ", claw1TicksToNextOperation);
+            telemetry.addData("claw 2 ticks: ", claw2TicksToNextOperation);
             telemetry.update();
         }
     }
