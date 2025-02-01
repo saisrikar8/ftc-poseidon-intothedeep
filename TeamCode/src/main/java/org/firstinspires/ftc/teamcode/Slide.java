@@ -54,20 +54,24 @@ public class Slide {
 
     public class MoveToPosition implements Action {
         private boolean init = false;
+        private int tPosition;
+        public MoveToPosition(int targetPos){
+            tPosition = targetPos;
+        }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if (!init) {
                 init = true;
-                motor.setTargetPosition((int) targetPosition);
+                motor.setTargetPosition((int) tPosition);
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             if (motor.isBusy()) {
-                if (motor.getCurrentPosition() + 50 >= targetPosition) {
+                if (motor.getCurrentPosition() - 50 >= tPosition) {
                     motor.setPower(0.5);
                     return true;
                 }
-                motor.setPower(0.66);
+                motor.setPower(0.9);
                 return true;
             }
             motor.setPower(0);
@@ -107,23 +111,19 @@ public class Slide {
     }
 
     public Action moveToPosition(double targetPosition) {
-        this.targetPosition = startingPosition - targetPosition * Constants.SLIDE_TICKS_PER_INCH;
-        return new MoveToPosition();
+        return new MoveToPosition((int)(startingPosition - targetPosition * Constants.SLIDE_TICKS_PER_INCH));
     }
 
     public Action moveToFourStageHighestPos() {
-        this.targetPosition = startingPosition + Constants.MAX_SLIDE_EXTENSION ;
-        return new MoveToPosition();
+        return new MoveToPosition((int)(startingPosition + Constants.MAX_SLIDE_EXTENSION));
     }
 
     public Action moveToTwoStageHighestPos() {
-        this.targetPosition = startingPosition + Constants.MAX_TWO_STAGE_EXTENSION;
-        return new MoveToPosition();
+        return new MoveToPosition((int)(startingPosition + Constants.MAX_TWO_STAGE_EXTENSION));
     }
 
     public Action moveToLowestPos() {
-        this.targetPosition = startingPosition;
-        return new MoveToPosition();
+        return new MoveToPosition((int)(startingPosition));
     }
 
     public Action stayAtRest(Gamepad gamepad1) {

@@ -35,8 +35,8 @@ public class Elevator {
     }
     public Action moveToHighestPosition(){
         return new ParallelAction(
-                right.moveToFourStageHighestPos(),
-                left.moveToFourStageHighestPos()
+                left.moveToFourStageHighestPos(),
+                right.moveToFourStageHighestPos()
         );
     }
     public Action moveToLowestPosition(){

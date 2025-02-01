@@ -14,8 +14,10 @@ import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_DROP_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_TRANSFER_PITCH;
 
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TimeTurn;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -107,43 +109,6 @@ public class TestAutoV2 extends LinearOpMode {
         currentPose = new Pose2d(-16, -60, Math.toRadians(90));
         drive = new MecanumDrive(hardwareMap, currentPose);
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        edgeDetection = new EdgeDetectionPipeline();
-        webcam.setPipeline(edgeDetection);
-        {
-            webcam.setMillisecondsPermissionTimeout(5000); // Timeout for obtaining permission is configurable. Set before opening.
-            webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    /*
-                     * Tell the webcam to start streaming images to us! Note that you must make sure
-                     * the resolution you specify is supported by the camera. If it is not, an exception
-                     * will be thrown.
-                     *
-                     * Keep in mind that the SDK's UVC driver (what OpenCvWebcam uses under the hood) only
-                     * supports streaming from the webcam in the uncompressed YUV image format. This means
-                     * that the maximum resolution you can stream at and still get up to 30FPS is 480p (640x480).
-                     * Streaming at e.g. 720p will limit you to up to 10FPS and so on and so forth.
-                     *
-                     * Also, we specify the rotation that the webcam is used in. This is so that the image
-                     * from the camera sensor can be rotated such that it is always displayed with the image upright.
-                     * For a front facing camera, rotation is defined assuming the user is looking at the screen.
-                     * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
-                     * away from the user.
-                     */
-                    webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-                    /*
-                     * This will be called if the camera could not be opened
-                     */
-                }
-            });
-        }
-
         // initialize stage 2
         Actions.runBlocking(arm.setOrientation(ARM_DEGREES));
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
@@ -151,12 +116,20 @@ public class TestAutoV2 extends LinearOpMode {
         waitForStart();
 
         // go to basket
-        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -46), Math.toRadians(90)).turnTo(Math.toRadians(45)).splineTo(new Vector2d(-40, -50), Math.toRadians(45));
+        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -46), Math.toRadians(90));
+        currentPose = new Pose2d(new Vector2d(-40, -46), Math.toRadians(90));
         Actions.runBlocking(traj0.build());
-
+        TrajectoryActionBuilder traj2 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -50), Math.toRadians(60));
+        currentPose = new Pose2d(new Vector2d(-40, -50), Math.toRadians(60));
+        Actions.runBlocking(traj2.build());
+        TrajectoryActionBuilder traj3 = drive.actionBuilder(currentPose).lineToY(-55);
+        Actions.runBlocking(traj3.build());
+        sleep(200);
 
         // make elevator go up
         Actions.runBlocking(elevator.moveToHighestPosition());
+        sleep(600);
+
         // move vertical claw to drop position and drop
         claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
         claw2Pitch = VERTICAL_CLAW_DROP_PITCH;
@@ -176,8 +149,8 @@ public class TestAutoV2 extends LinearOpMode {
         TrajectoryActionBuilder traj01 = drive.actionBuilder(currentPose).strafeTo(new Vector2d(currentPose.position.x, currentPose.position.y + 10));
         Actions.runBlocking(new ParallelAction(traj01.build(), elevator.moveToLowestPosition()));
 
-        TrajectoryActionBuilder traj1 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-33, -36), Math.toRadians(90));
-        Actions.runBlocking(traj1.build());
+        TrajectoryActionBuilder traj02 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-33, -36), Math.toRadians(90));
+        Actions.runBlocking(traj02.build());
 
 
         telemetry.addData("Sample detected: ", edgeDetection.sampleDetected);
@@ -204,8 +177,8 @@ public class TestAutoV2 extends LinearOpMode {
         Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(claw1Pitch)));
         sleep(1500);
         // go to basket
-        TrajectoryActionBuilder traj2 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -43), Math.toRadians(90)).turnTo(Math.toRadians(45));
-        Actions.runBlocking(traj2.build());
+        TrajectoryActionBuilder traj03 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -43), Math.toRadians(90)).turnTo(Math.toRadians(45));
+        Actions.runBlocking(traj03.build());
 
 
         // go to middle sample
@@ -214,41 +187,6 @@ public class TestAutoV2 extends LinearOpMode {
         telemetry.update();
         while (opModeIsActive() && !isStopRequested()) {
             sleep(1000);
-        }
-    }
-
-    public void cameraProcess() {
-        int TICKS_TILL_TERMINATE = 1000;
-        RotatedRect foundBoundingBox = edgeDetection.boundingBox;
-        double sample_area = foundBoundingBox.size.width * foundBoundingBox.size.height;
-        TrajectoryActionBuilder traj = null;
-        telemetry.addData("sample area: ", sample_area);
-        // TODO: calibrate ALL numbers
-        // test size, if smaller, means not whole box is in view
-        while (sample_area < 200) {
-            int POS_DISPLACEMENT_AMOUNT = 3;
-            // whole sample not detected, fix it
-            // is the coordinates on the right or left?
-            // too on the left, move right a bit
-            if (foundBoundingBox.center.x < 100) {
-                // wont work
-                traj = drive.actionBuilder(currentPose).lineToX(currentPose.position.x + POS_DISPLACEMENT_AMOUNT);
-            }
-            // too on the right
-            if (foundBoundingBox.center.x > 1000) {
-                currentPose = new Pose2d(new Vector2d(currentPose.position.x - POS_DISPLACEMENT_AMOUNT, currentPose.position.y), currentPose.heading);
-            }
-            // too on the top
-            if (foundBoundingBox.center.y > 1000) {
-                currentPose = new Pose2d(new Vector2d(currentPose.position.x, currentPose.position.y - POS_DISPLACEMENT_AMOUNT), currentPose.heading);
-            }
-            // too on the bottom
-            if (foundBoundingBox.center.y < 100) {
-                currentPose = new Pose2d(new Vector2d(currentPose.position.x, currentPose.position.y + POS_DISPLACEMENT_AMOUNT), currentPose.heading);
-            }
-            if (traj != null) Actions.runBlocking(traj.build());
-            sleep(5000); // SLOW LOOP FOR DEBUG
-            sample_area = foundBoundingBox.size.width * foundBoundingBox.size.height;
         }
     }
 }
