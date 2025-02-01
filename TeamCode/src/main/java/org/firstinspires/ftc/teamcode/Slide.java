@@ -63,19 +63,18 @@ public class Slide {
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if (!init) {
                 init = true;
-                motor.setTargetPosition((int) tPosition);
+                motor.setTargetPosition(tPosition);
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             if (motor.isBusy()) {
                 if (motor.getCurrentPosition() - 50 >= tPosition) {
-                    motor.setPower(0.5);
+                    motor.setPower(0.4);
                     return true;
                 }
-                motor.setPower(0.9);
+                motor.setPower(0.75);
                 return true;
             }
             motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             return false;
         }
     }

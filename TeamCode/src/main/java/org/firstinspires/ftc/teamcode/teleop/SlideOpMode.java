@@ -37,6 +37,7 @@ public class SlideOpMode extends LinearOpMode {
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor3.setDirection(DcMotorSimple.Direction.REVERSE);

@@ -6,7 +6,7 @@ public class Constants {
     public static final double MAX_RPM = 312;
 
     public static final double SLIDE_TICKS_PER_INCH = 113.64;
-    public static final int MAX_SLIDE_EXTENSION = -3750;
+    public static final int MAX_SLIDE_EXTENSION = -3830;
 
     public static final int MAX_TWO_STAGE_EXTENSION = -1990;
 

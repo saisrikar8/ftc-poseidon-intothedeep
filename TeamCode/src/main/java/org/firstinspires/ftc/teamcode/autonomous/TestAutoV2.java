@@ -6,23 +6,15 @@ import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE3_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_AIM_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_CLOSE_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_IDLE_YAW;
-import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_OPEN_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_CLOSE_CLAWPOS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_DROP_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_TRANSFER_PITCH;
-
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Rotation2d;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.TimeTurn;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TrajectoryBuilder;
-import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -30,18 +22,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Claw;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Elevator;
 import org.firstinspires.ftc.teamcode.HorizontalArmRotator;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.pipelines.EdgeDetectionPipeline;
-import org.opencv.core.RotatedRect;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name = "Test Auto v2")
@@ -61,7 +46,7 @@ public class TestAutoV2 extends LinearOpMode {
     Elevator elevator;
     MecanumDrive drive;
     Pose2d currentPose;
-    EdgeDetectionPipeline edgeDetection;
+    // EdgeDetectionPipeline edgeDetection;
     OpenCvWebcam webcam;
 
     @Override
@@ -75,9 +60,14 @@ public class TestAutoV2 extends LinearOpMode {
         horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
         vertical1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
         vertical2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
+        vertical1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        vertical2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
         vertical1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         vertical2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        vertical1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        vertical2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         armRotator = hardwareMap.get(Servo.class, "arm-rotator");
         armRotator2 = hardwareMap.get(Servo.class, "arm-rotator-2");
 
@@ -116,30 +106,28 @@ public class TestAutoV2 extends LinearOpMode {
         waitForStart();
 
         // go to basket
-        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -46), Math.toRadians(90));
-        currentPose = new Pose2d(new Vector2d(-40, -46), Math.toRadians(90));
+        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -46), Math.toRadians(90)).turnTo(Math.toRadians(55));
+        currentPose = new Pose2d(new Vector2d(-40, -46), Math.toRadians(55));
         Actions.runBlocking(traj0.build());
-        TrajectoryActionBuilder traj2 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -50), Math.toRadians(60));
-        currentPose = new Pose2d(new Vector2d(-40, -50), Math.toRadians(60));
-        Actions.runBlocking(traj2.build());
         TrajectoryActionBuilder traj3 = drive.actionBuilder(currentPose).lineToY(-55);
         Actions.runBlocking(traj3.build());
         sleep(200);
 
         // make elevator go up
-        Actions.runBlocking(elevator.moveToHighestPosition());
-        sleep(600);
+        // Actions.runBlocking(new ParallelAction(elevator.moveToHighestPosition()));
+        slidesToFourStage();
+
 
         // move vertical claw to drop position and drop
         claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
         claw2Pitch = VERTICAL_CLAW_DROP_PITCH;
         Actions.runBlocking(claw2.setClawPitch(claw2Pitch));
-        sleep(750);
+        sleep(800);
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
-        sleep(150);
+        sleep(100);
         claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
-        sleep(150);
+        slidesToLowestStage();
 
 //        traj02 = drive.actionBuilder(currentPose).turnTo(Math.toRadians(90));
 //        Actions.runBlocking(traj02.build());
@@ -153,13 +141,13 @@ public class TestAutoV2 extends LinearOpMode {
         Actions.runBlocking(traj02.build());
 
 
-        telemetry.addData("Sample detected: ", edgeDetection.sampleDetected);
-        if (edgeDetection.sampleDetected) {
-            telemetry.addData("sample location x: ", edgeDetection.boundingBox.center.x);
-            telemetry.addData("sample location y: ", edgeDetection.boundingBox.center.y);
-            telemetry.addData("sample location width: ", edgeDetection.boundingBox.size.width);
-            telemetry.addData("sample location height: ", edgeDetection.boundingBox.size.height);
-        }
+//        telemetry.addData("Sample detected: ", edgeDetection.sampleDetected);
+//        if (edgeDetection.sampleDetected) {
+//            telemetry.addData("sample location x: ", edgeDetection.boundingBox.center.x);
+//            telemetry.addData("sample location y: ", edgeDetection.boundingBox.center.y);
+//            telemetry.addData("sample location width: ", edgeDetection.boundingBox.size.width);
+//            telemetry.addData("sample location height: ", edgeDetection.boundingBox.size.height);
+//        }
         // grab it
         Actions.runBlocking(claw.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH));
         sleep(1500);
@@ -187,6 +175,27 @@ public class TestAutoV2 extends LinearOpMode {
         telemetry.update();
         while (opModeIsActive() && !isStopRequested()) {
             sleep(1000);
+        }
+    }
+    public void slidesToFourStage() {
+        vertical1.setTargetPosition(Constants.MAX_SLIDE_EXTENSION);
+        vertical2.setTargetPosition(Constants.MAX_SLIDE_EXTENSION);
+        vertical1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (opModeIsActive() && !isStopRequested() && vertical1.getCurrentPosition() != Constants.MAX_SLIDE_EXTENSION ) {
+            vertical1.setPower(0.92);
+            vertical2.setPower(0.92);
+        }
+    }
+    public void slidesToLowestStage() {
+        vertical1.setTargetPosition(15);
+        vertical2.setTargetPosition(15);
+        vertical1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (opModeIsActive() && !isStopRequested() && vertical1.getCurrentPosition() != 15 ) {
+            vertical1.setPower(0.92);
+            vertical2.setPower(0.92);
         }
     }
 }
