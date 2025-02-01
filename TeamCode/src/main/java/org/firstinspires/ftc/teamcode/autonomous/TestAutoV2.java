@@ -106,53 +106,47 @@ public class TestAutoV2 extends LinearOpMode {
         waitForStart();
 
         // go to basket
-        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -46), Math.toRadians(90)).turnTo(Math.toRadians(55));
-        currentPose = new Pose2d(new Vector2d(-40, -46), Math.toRadians(55));
+        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).lineToY(-50).splineTo(new Vector2d(-42, -46), Math.toRadians(90)).turnTo(Math.toRadians(50));
+        currentPose = new Pose2d(new Vector2d(-37, -42), Math.toRadians(50));
         Actions.runBlocking(traj0.build());
-        TrajectoryActionBuilder traj3 = drive.actionBuilder(currentPose).lineToY(-55);
-        Actions.runBlocking(traj3.build());
-        sleep(200);
 
         // make elevator go up
         // Actions.runBlocking(new ParallelAction(elevator.moveToHighestPosition()));
         slidesToFourStage();
 
+        TrajectoryActionBuilder traj3 = drive.actionBuilder(currentPose).fresh().lineToY(-54);
+        Actions.runBlocking(traj3.build());
 
         // move vertical claw to drop position and drop
         claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
         claw2Pitch = VERTICAL_CLAW_DROP_PITCH;
         Actions.runBlocking(claw2.setClawPitch(claw2Pitch));
-        sleep(800);
+        sleep(1000);
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
-        sleep(100);
+        sleep(600);
         claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
-        Actions.runBlocking(claw2.setClawPosition(claw2Pos));
+
+
+        TrajectoryActionBuilder traj4 = drive.actionBuilder(currentPose).turnTo(Math.toRadians(90)).lineToY(-45);
+        Actions.runBlocking(new ParallelAction(traj4.build(), claw2.setClawPosition(claw2Pos), claw2.setClawPitch(claw2Pitch)));
         slidesToLowestStage();
 
 //        traj02 = drive.actionBuilder(currentPose).turnTo(Math.toRadians(90));
 //        Actions.runBlocking(traj02.build());
 
+        // go to middle sample
+        TrajectoryActionBuilder traj5 = drive.actionBuilder(currentPose).lineToY(-50);
+        Actions.runBlocking(traj5.build());
 
-        // go to right most sample
-        TrajectoryActionBuilder traj01 = drive.actionBuilder(currentPose).strafeTo(new Vector2d(currentPose.position.x, currentPose.position.y + 10));
-        Actions.runBlocking(new ParallelAction(traj01.build(), elevator.moveToLowestPosition()));
+        TrajectoryActionBuilder traj01 = drive.actionBuilder(currentPose).lineToY(-28);
+        Actions.runBlocking(traj01.build());
+        sleep(10000);
 
-        TrajectoryActionBuilder traj02 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-33, -36), Math.toRadians(90));
-        Actions.runBlocking(traj02.build());
-
-
-//        telemetry.addData("Sample detected: ", edgeDetection.sampleDetected);
-//        if (edgeDetection.sampleDetected) {
-//            telemetry.addData("sample location x: ", edgeDetection.boundingBox.center.x);
-//            telemetry.addData("sample location y: ", edgeDetection.boundingBox.center.y);
-//            telemetry.addData("sample location width: ", edgeDetection.boundingBox.size.width);
-//            telemetry.addData("sample location height: ", edgeDetection.boundingBox.size.height);
-//        }
         // grab it
-        Actions.runBlocking(claw.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH));
-        sleep(1500);
+        Actions.runBlocking(new ParallelAction(claw.setClawPitch(HORIZONTAL_CLAW_PICKUP_POS_PITCH), claw.setClawYaw(HORIZONTAL_CLAW_IDLE_YAW)));
+        sleep(1000);
         Actions.runBlocking(arm.setOrientation(ARM_STAGE3_DEG));
-        sleep(1500);
+        sleep(500);
         Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_CLOSE_POS));
 
         // transfer it up to vertical claw (USE TRANSFER FROM BEFORE)
@@ -184,18 +178,19 @@ public class TestAutoV2 extends LinearOpMode {
         vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while (opModeIsActive() && !isStopRequested() && vertical1.getCurrentPosition() != Constants.MAX_SLIDE_EXTENSION ) {
-            vertical1.setPower(0.92);
-            vertical2.setPower(0.92);
+            vertical1.setPower(1);
+            vertical2.setPower(1);
         }
     }
     public void slidesToLowestStage() {
-        vertical1.setTargetPosition(15);
-        vertical2.setTargetPosition(15);
+        int target_pos = -200;
+        vertical1.setTargetPosition(target_pos);
+        vertical2.setTargetPosition(target_pos);
         vertical1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         vertical2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (opModeIsActive() && !isStopRequested() && vertical1.getCurrentPosition() != 15 ) {
-            vertical1.setPower(0.92);
-            vertical2.setPower(0.92);
+        while (opModeIsActive() && !isStopRequested() && vertical1.getCurrentPosition() != target_pos ) {
+            vertical1.setPower(1);
+            vertical2.setPower(1);
         }
     }
 }

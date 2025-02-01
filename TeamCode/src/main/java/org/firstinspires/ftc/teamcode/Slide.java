@@ -54,8 +54,8 @@ public class Slide {
 
     public class MoveToPosition implements Action {
         private boolean init = false;
-        private int tPosition;
-        public MoveToPosition(int targetPos){
+        private double tPosition;
+        public MoveToPosition(double targetPos){
             tPosition = targetPos;
         }
 
@@ -63,17 +63,19 @@ public class Slide {
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if (!init) {
                 init = true;
-                motor.setTargetPosition(tPosition);
+                motor.setTargetPosition((int) tPosition);
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             if (motor.isBusy()) {
-                if (motor.getCurrentPosition() - 50 >= tPosition) {
-                    motor.setPower(0.4);
-                    return true;
+                if (Math.abs(motor.getCurrentPosition() - tPosition) <= 50) {
+                    motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motor.setPower(0);
+                    return false;
                 }
-                motor.setPower(0.75);
+                motor.setPower(0.9);
                 return true;
             }
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setPower(0);
             return false;
         }
@@ -110,7 +112,7 @@ public class Slide {
     }
 
     public Action moveToPosition(double targetPosition) {
-        return new MoveToPosition((int)(startingPosition - targetPosition * Constants.SLIDE_TICKS_PER_INCH));
+        return new MoveToPosition((startingPosition - targetPosition * Constants.SLIDE_TICKS_PER_INCH));
     }
 
     public Action moveToFourStageHighestPos() {

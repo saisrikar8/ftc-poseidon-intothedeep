@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class HorizontalArmRotator {
-    Slide left, right;
+    public Slide left, right;
     public Servo rotator1, rotator2;
 
     public HorizontalArmRotator(DcMotor l, DcMotor r, Servo rotatorServo, Servo rotatorServo2) {
@@ -43,7 +43,7 @@ public class HorizontalArmRotator {
         return new SetOrientation(degrees);
     }
 
-    public Action moveToPosition(int targetPos) {
+    public Action moveToPosition(double targetPos) {
         return new ParallelAction(
                 right.moveToPosition(targetPos),
                 left.moveToPosition(targetPos)

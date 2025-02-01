@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE1_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE2_DEG;
 import static org.firstinspires.ftc.teamcode.Constants.ARM_STAGE3_DEG;
+import static org.firstinspires.ftc.teamcode.Constants.HORIZONTALSLIDE_TRANSFER_LENGTH_INCHES;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_AIM_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_CLOSE_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_OPEN_POS;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_PICKUP_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+import static org.firstinspires.ftc.teamcode.Constants.SLIDE_TICKS_PER_INCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_CLOSE_CLAWPOS;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_DROP_PITCH;
 import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
@@ -18,6 +20,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -59,8 +62,6 @@ public class ChassisTestingTeleop extends LinearOpMode {
     private double claw1Pitch = HORIZONTAL_CLAW_PICKUP_POS_PITCH;
     private double claw1Yaw = Constants.HORIZONTAL_CLAW_IDLE_YAW;
     private double claw1Pos = Constants.HORIZONTAL_CLAW_OPEN_POS;
-    private double claw2TicksToNextOperation = 0;
-    private double claw1TicksToNextOperation = 0;
     private double vertical1StartPos;
     private double vertical2StartPos;
 
@@ -79,6 +80,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
             horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
             horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
+
             armRotator = hardwareMap.get(Servo.class, "arm-rotator");
             armRotator2 = hardwareMap.get(Servo.class, "arm-rotator-2");
 
@@ -118,7 +120,6 @@ public class ChassisTestingTeleop extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            boolean verticalSlideLimitReached = false;
             // Moving robot based on gamepad 1's inputs
             moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             // moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
@@ -132,51 +133,74 @@ public class ChassisTestingTeleop extends LinearOpMode {
                 Actions.runBlocking(new SequentialAction(claw2.setClawPosition(claw2Pitch), claw.setClawPosition(claw1Pos)));
             }
 
-            if (gamepad2.dpad_left || gamepad2.dpad_right) {
-                if (claw1Yaw == Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW)
+            if (gamepad2.dpad_left) {
                     claw1Yaw = Constants.HORIZONTAL_CLAW_HORIZONTALSAMPLE_YAW;
-                else claw1Yaw = Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+                    Actions.runBlocking(claw.setClawYaw(claw1Yaw));
             }
-            if (gamepad2.dpad_down && claw2TicksToNextOperation > 500) {
-                claw2TicksToNextOperation = 0;
-                claw2Pitch = claw2Pitch - 0.05;
+            if (gamepad2.dpad_right){
+                claw1Yaw = Constants.HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+                Actions.runBlocking(claw.setClawYaw(claw1Yaw));
             }
-            if (gamepad2.left_bumper) {
-                ARM_DEGREES = ARM_STAGE1_DEG;
-                claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
-                claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
-                claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+            if (gamepad2.dpad_down) {
+                claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
+            }
+            if (gamepad2.dpad_up){
+                claw2Pitch = VERTICAL_CLAW_DROP_PITCH;
+            }
+            if (gamepad2.x){
+                Actions.runBlocking(
+                        new SequentialAction(
+                                elevator.moveToPosition(15),
+                                elevator.moveToPosition(13)
+                        )
+                );
+            }
+
+            if (gamepad2.y) {
+                Actions.runBlocking(
+                        elevator.moveToHighestPosition()
+                );
             }
             if (gamepad2.right_bumper) {
                 ARM_DEGREES = ARM_STAGE2_DEG;
                 claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
                 claw1Pitch = HORIZONTAL_CLAW_AIM_POS_PITCH;
-                claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+                claw2Pos = VERTICAL_CLAW_CLOSE_CLAWPOS;
                 claw1Yaw = HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
             }
             if (gamepad2.right_trigger > 0.5) {
                 ARM_DEGREES = ARM_STAGE3_DEG;
                 claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
                 claw1Pitch = HORIZONTAL_CLAW_PICKUP_POS_PITCH;
+                Actions.runBlocking(claw.setClawPitch(claw1Pitch));
+                sleep(150);
                 claw2Pos = VERTICAL_CLAW_CLOSE_CLAWPOS;
             }
             if (gamepad2.left_trigger > 0.5) {
                 claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
                 claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
                 claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
-                Actions.runBlocking(new ParallelAction(claw.setClawPosition(claw1Pos), claw2.setClawPitch(claw2Pitch)));
+                Actions.runBlocking(new ParallelAction(claw.setClawPosition(claw1Pos), claw2.setClawPitch(claw2Pitch), claw2.setClawPosition(VERTICAL_CLAW_OPEN_CLAWPOS)));
                 sleep(500);
+                Actions.runBlocking(arm.setOrientation(ARM_STAGE2_DEG));
+                sleep(500);
+                Actions.runBlocking(arm.moveToPosition(-3));
+                Actions.runBlocking(elevator.moveToPosition(1));
                 ARM_DEGREES = ARM_STAGE1_DEG;
                 claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
                 claw1Pitch = HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
                 claw1Yaw = HORIZONTAL_CLAW_VERTICALSAMPLE_YAW;
+                Actions.runBlocking(new SequentialAction(
+                        claw.setClawYaw(claw1Yaw),
+                        claw.setClawPosition(claw1Pos),
+                        claw.setClawPitch(claw1Pitch),
+                        arm.setOrientation(ARM_DEGREES)));
+                sleep(1200);
+                Actions.runBlocking(arm.moveToLowestPosition());
             }
-            if (gamepad2.right_stick_x > 0.6) {
-                returnHorizontalToPickupPosition();
-            }
+
+
             // running
-            arm.setMotorPowers(gamepad2.right_stick_x);
-            elevator.setMotorPowers(gamepad2.left_stick_y);
             Actions.runBlocking(
                     new ParallelAction(
                             arm.setOrientation(ARM_DEGREES),
@@ -196,8 +220,6 @@ public class ChassisTestingTeleop extends LinearOpMode {
             telemetry.addData("vertical slide 2 pos: ", vertical2.getCurrentPosition());
             telemetry.addData("vertical claw pos: ", claw2Pos);
             telemetry.addData("vertical claw pitch: ", claw2Pitch);
-            telemetry.addData("claw 1 ticks: ", claw1TicksToNextOperation);
-            telemetry.addData("claw 2 ticks: ", claw2TicksToNextOperation);
             telemetry.update();
         }
     }
