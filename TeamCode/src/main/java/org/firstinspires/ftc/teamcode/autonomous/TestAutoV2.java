@@ -17,8 +17,10 @@ import static org.firstinspires.ftc.teamcode.Constants.VERTICAL_CLAW_TRANSFER_PI
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TimeTurn;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -40,7 +42,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="Test Auto v2")
+@Autonomous(name = "Test Auto v2")
 public class TestAutoV2 extends LinearOpMode {
     double ARM_DEGREES = Constants.ARM_STAGE2_DEG;
     private double claw2Pos = Constants.VERTICAL_CLAW_OPEN_CLAWPOS;
@@ -51,7 +53,7 @@ public class TestAutoV2 extends LinearOpMode {
     DcMotor frontLeft, frontRight, backLeft, backRight;
     DcMotor horizontal1, horizontal2, vertical1, vertical2;
     Servo verticalClaw, verticalClawRotator;
-    Servo armRotator, armRotator2, horizontalClaw, horizontalClawRotator;
+    Servo armRotator, armRotator2, horizontalClaw, horizontalClawRotator, horizontalClawYaw;
     Claw claw, claw2;
     HorizontalArmRotator arm;
     Elevator elevator;
@@ -59,6 +61,7 @@ public class TestAutoV2 extends LinearOpMode {
     Pose2d currentPose;
     EdgeDetectionPipeline edgeDetection;
     OpenCvWebcam webcam;
+
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = hardwareMap.get(DcMotor.class, "front-left");
@@ -81,31 +84,24 @@ public class TestAutoV2 extends LinearOpMode {
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontal-claw");
         horizontalClawRotator = hardwareMap.get(Servo.class, "horizontal-claw-rotator");
+        horizontalClawYaw = hardwareMap.get(Servo.class, "horizontal-claw-rotator-2");
 
         arm = new HorizontalArmRotator(horizontal1, horizontal2, armRotator, armRotator2);
-        claw = new Claw(horizontalClaw, horizontalClawRotator);
+        claw = new Claw(horizontalClaw, horizontalClawRotator, horizontalClawYaw);
         claw2 = new Claw(verticalClaw, verticalClawRotator);
-
-        currentPose = new Pose2d(-16, -60, Math.toRadians(90));
-        drive = new MecanumDrive(hardwareMap, currentPose);
 
         elevator = new Elevator(vertical1, vertical2);
 
         telemetry.addData("Stage", "Arm moved to inital position");
         telemetry.update();
 
-        ARM_DEGREES = ARM_STAGE1_DEG;
+        ARM_DEGREES = ARM_STAGE2_DEG;
         claw1Pos = HORIZONTAL_CLAW_CLOSE_POS;
         claw1Pitch = HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
         claw1Yaw = HORIZONTAL_CLAW_IDLE_YAW;
 
-        claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+        claw2Pos = VERTICAL_CLAW_CLOSE_CLAWPOS;
         claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
-
-        // make sure all arm stuff is in the correct position
-        Actions.runBlocking(new ParallelAction(claw2.setClawPitch(claw2Pitch), claw2.setClawPosition(claw2Pos)));
-        sleep(1000);
-        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPosition(claw1Pos), claw.setClawYaw(claw1Yaw), claw.setClawPosition(claw1Pos)));
 
 
         currentPose = new Pose2d(-16, -60, Math.toRadians(90));
@@ -150,37 +146,40 @@ public class TestAutoV2 extends LinearOpMode {
 
         // initialize stage 2
         Actions.runBlocking(arm.setOrientation(ARM_DEGREES));
-        Actions.runBlocking(claw.setClawPosition(claw1Pos));
         Actions.runBlocking(claw2.setClawPosition(claw2Pos));
-        Actions.runBlocking(claw2.setClawPitch(claw2Pitch));
 
         waitForStart();
 
-        // initiate transfer
-        sleep(1000);
-        claw1Pos = HORIZONTAL_CLAW_OPEN_POS;
-        claw2Pos = VERTICAL_CLAW_CLOSE_CLAWPOS;
-        ARM_DEGREES = ARM_STAGE2_DEG;
+        // go to basket
+        TrajectoryActionBuilder traj0 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -46), Math.toRadians(90)).turnTo(Math.toRadians(45)).splineTo(new Vector2d(-40, -50), Math.toRadians(45));
+        Actions.runBlocking(traj0.build());
 
 
-        // close vertical claw
-        Actions.runBlocking(claw2.setClawPosition(claw2Pos));
-        sleep(250);
-        // open horizontal claw and move arm out of the way
-        Actions.runBlocking(new SequentialAction(claw.setClawPosition(claw1Pos), arm.setOrientation(ARM_DEGREES)));
-        sleep(1000);
         // make elevator go up
         Actions.runBlocking(elevator.moveToHighestPosition());
         // move vertical claw to drop position and drop
         claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
         claw2Pitch = VERTICAL_CLAW_DROP_PITCH;
-        Actions.runBlocking(new SequentialAction(claw2.setClawPitch(claw2Pos), claw2.setClawPosition(claw2Pos)));
+        Actions.runBlocking(claw2.setClawPitch(claw2Pitch));
+        sleep(750);
+        Actions.runBlocking(claw2.setClawPosition(claw2Pos));
+        sleep(150);
+        claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
+        Actions.runBlocking(claw2.setClawPosition(claw2Pos));
+        sleep(150);
 
+//        traj02 = drive.actionBuilder(currentPose).turnTo(Math.toRadians(90));
+//        Actions.runBlocking(traj02.build());
 
 
         // go to right most sample
+        TrajectoryActionBuilder traj01 = drive.actionBuilder(currentPose).strafeTo(new Vector2d(currentPose.position.x, currentPose.position.y + 10));
+        Actions.runBlocking(new ParallelAction(traj01.build(), elevator.moveToLowestPosition()));
+
         TrajectoryActionBuilder traj1 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-33, -36), Math.toRadians(90));
         Actions.runBlocking(traj1.build());
+
+
         telemetry.addData("Sample detected: ", edgeDetection.sampleDetected);
         if (edgeDetection.sampleDetected) {
             telemetry.addData("sample location x: ", edgeDetection.boundingBox.center.x);
@@ -196,11 +195,20 @@ public class TestAutoV2 extends LinearOpMode {
         Actions.runBlocking(claw.setClawPosition(HORIZONTAL_CLAW_CLOSE_POS));
 
         // transfer it up to vertical claw (USE TRANSFER FROM BEFORE)
+        claw2Pitch = VERTICAL_CLAW_TRANSFER_PITCH;
+        claw2Pos = VERTICAL_CLAW_OPEN_CLAWPOS;
+        Actions.runBlocking(new ParallelAction(claw2.setClawPitch(claw2Pitch), claw2.setClawPosition(claw2Pos)));
+        sleep(500);
+        ARM_DEGREES = ARM_STAGE1_DEG;
+        claw1Pitch = HORIZONTAL_CLAW_TRANSFER_POS_PITCH;
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(claw1Pitch)));
+        sleep(1500);
+        // go to basket
+        TrajectoryActionBuilder traj2 = drive.actionBuilder(currentPose).splineTo(new Vector2d(-40, -43), Math.toRadians(90)).turnTo(Math.toRadians(45));
+        Actions.runBlocking(traj2.build());
+
 
         // go to middle sample
-
-
-
 
 
         telemetry.update();
@@ -208,6 +216,7 @@ public class TestAutoV2 extends LinearOpMode {
             sleep(1000);
         }
     }
+
     public void cameraProcess() {
         int TICKS_TILL_TERMINATE = 1000;
         RotatedRect foundBoundingBox = edgeDetection.boundingBox;

@@ -22,6 +22,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Claw;
@@ -73,6 +74,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
             vertical1 = hardwareMap.get(DcMotor.class, "vertical-slide-1");
             vertical2 = hardwareMap.get(DcMotor.class, "vertical-slide-2");
+            vertical1.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
             horizontal1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
             horizontal2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
@@ -97,13 +100,13 @@ public class ChassisTestingTeleop extends LinearOpMode {
             horizontal1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             horizontal2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//        frontRight.setDirection(DcMotor.Direction.REVERSE);
-//        backRight.setDirection(DcMotor.Direction.REVERSE);
+            frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            frontRight.setDirection(DcMotor.Direction.REVERSE);
+            backRight.setDirection(DcMotor.Direction.REVERSE);
             //-227, -241
             // sorting entities into subsystems
             elevator = new Elevator(vertical1, vertical2);
@@ -271,6 +274,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
         // Apply correction factors for uneven weight distribution
         double strafeCorrectionFrontLeft = 0.95;  // Reduce power for front-left motor
         double strafeCorrectionFrontRight = 0.95; // Reduce power for front-right motor
+
+
 
         // Calculate each motor's power
         double frontLeftPower = (speed + turn + strafe) * strafeCorrectionFrontLeft;

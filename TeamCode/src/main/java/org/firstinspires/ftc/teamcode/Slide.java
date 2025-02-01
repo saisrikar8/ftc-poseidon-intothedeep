@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Slide {
 
     private DcMotor motor;
+    public double specificPower;
 
     private Gamepad gamepad;
     private double targetPower;
@@ -63,7 +64,7 @@ public class Slide {
             }
             if (motor.isBusy()) {
                 if (motor.getCurrentPosition() + 50 >= targetPosition) {
-                    motor.setPower(0.1);
+                    motor.setPower(0.5);
                     return true;
                 }
                 motor.setPower(0.66);
@@ -111,7 +112,7 @@ public class Slide {
     }
 
     public Action moveToFourStageHighestPos() {
-        this.targetPosition = startingPosition + Constants.MAX_SLIDE_EXTENSION;
+        this.targetPosition = startingPosition + Constants.MAX_SLIDE_EXTENSION ;
         return new MoveToPosition();
     }
 
