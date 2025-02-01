@@ -114,7 +114,7 @@ public class TestAutoV2 extends LinearOpMode {
         // Actions.runBlocking(new ParallelAction(elevator.moveToHighestPosition()));
         slidesToFourStage();
 
-        TrajectoryActionBuilder traj3 = drive.actionBuilder(currentPose).fresh().lineToY(-54);
+        TrajectoryActionBuilder traj3 = drive.actionBuilder(currentPose).fresh().lineToY(-56);
         Actions.runBlocking(traj3.build());
 
         // move vertical claw to drop position and drop
@@ -130,6 +130,10 @@ public class TestAutoV2 extends LinearOpMode {
         TrajectoryActionBuilder traj4 = drive.actionBuilder(currentPose).turnTo(Math.toRadians(90)).lineToY(-45);
         Actions.runBlocking(new ParallelAction(traj4.build(), claw2.setClawPosition(claw2Pos), claw2.setClawPitch(claw2Pitch)));
         slidesToLowestStage();
+        TrajectoryActionBuilder traj8 = drive.actionBuilder(currentPose).lineToY(-56);
+        Actions.runBlocking(traj8.build());
+        sleep(1000000);
+
 
 //        traj02 = drive.actionBuilder(currentPose).turnTo(Math.toRadians(90));
 //        Actions.runBlocking(traj02.build());

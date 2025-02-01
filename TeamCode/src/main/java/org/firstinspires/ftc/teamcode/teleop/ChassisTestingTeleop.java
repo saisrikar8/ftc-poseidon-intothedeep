@@ -122,6 +122,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             // Moving robot based on gamepad 1's inputs
             moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            // moveRobot(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
             // moveClaw(gamepad1.left_stick_x, gamepad1.right_stick_y, gamepad1.y, gamepad1.a);
 
             if (gamepad2.a) {
@@ -196,7 +197,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
                         claw.setClawPitch(claw1Pitch),
                         arm.setOrientation(ARM_DEGREES)));
                 sleep(1200);
-                Actions.runBlocking(arm.moveToLowestPosition());
+                Actions.runBlocking(arm.moveToPosition(-0.5));
             }
 
 
@@ -233,6 +234,7 @@ public class ChassisTestingTeleop extends LinearOpMode {
 
     public void returnHorizontalToPickupPosition() {
         ARM_DEGREES = ARM_STAGE3_DEG;
+        Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
         Actions.runBlocking(new ParallelAction(arm.setOrientation(ARM_DEGREES), claw.setClawPitch(0.99), claw.setClawPosition(0.7)));
     }
 
@@ -294,9 +296,8 @@ public class ChassisTestingTeleop extends LinearOpMode {
         double turn = -rightStickX;   // Rotation
 
         // Apply correction factors for uneven weight distribution
-        double strafeCorrectionFrontLeft = 0.95;  // Reduce power for front-left motor
+        double strafeCorrectionFrontLeft = 0.9;  // Reduce power for front-left motor
         double strafeCorrectionFrontRight = 0.95; // Reduce power for front-right motor
-
 
 
         // Calculate each motor's power
