@@ -2,8 +2,8 @@ Control Hub
 ====================
     Motors
     ======================
-    0:    vertical-slide-1
-    1:    horizontal-slide-1
+    0:    horizontal-slide-1
+    1:    shooter
     2:    front-right
     3:    rear-right
 
@@ -12,13 +12,6 @@ Expansion Hub
     Motors
     =======================
     0:    horizontal-slide-2
-    1:    vertical-slide-2
+    1:
     2:    front-left
     3:    rear-left
-
-
-    Servos
-    ========================
-    0: arm-rotator
-    1: horizontal-claw
-    2: horizontal-claw-rotator
