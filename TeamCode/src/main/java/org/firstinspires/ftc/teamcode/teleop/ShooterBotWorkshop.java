@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
-@TeleOp(name = "Shooter Bot Demo")
-public class ShooterBotDemo extends LinearOpMode {
+@TeleOp(name = "Shooter Bot Demo ACTUAL")
+public class ShooterBotWorkshop extends LinearOpMode {
     public DcMotor frontLeft, frontRight, backLeft, backRight;
     public DcMotor shooter;
     public DcMotor slide1, slide2;
@@ -23,7 +23,7 @@ public class ShooterBotDemo extends LinearOpMode {
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        // shooter = hardwareMap.get(DcMotor.class, "shooter");
+        shooter = hardwareMap.get(DcMotor.class, "shooter");
 
         slide1 = hardwareMap.get(DcMotor.class, "horizontal-slide-1");
         slide2 = hardwareMap.get(DcMotor.class, "horizontal-slide-2");
@@ -33,7 +33,7 @@ public class ShooterBotDemo extends LinearOpMode {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        // shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         slide1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slide2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
